@@ -5,6 +5,9 @@ import (
 
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
+
+	v1 "github.com/go-microservice/account-service/api/user/v1"
+	"github.com/go-microservice/account-service/internal/service"
 )
 
 // NewGRPCServer creates a gRPC server
@@ -17,7 +20,7 @@ func NewGRPCServer(cfg *app.ServerConfig) *grpc.Server {
 	)
 
 	// register biz service
-	// v1.RegisterUserServiceServer(grpcServer, service.Svc.Users())
+	v1.RegisterUserServer(grpcServer, service.NewUserService())
 
 	return grpcServer
 }

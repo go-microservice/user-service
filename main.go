@@ -27,10 +27,10 @@ import (
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
 	v "github.com/go-eagle/eagle/pkg/version"
-	"github.com/go-microservice/internal/model"
-	"github.com/go-microservice/internal/repository"
-	"github.com/go-microservice/internal/server"
-	"github.com/go-microservice/internal/service"
+	"github.com/go-microservice/account-service/internal/model"
+	"github.com/go-microservice/account-service/internal/repository"
+	"github.com/go-microservice/account-service/internal/server"
+	"github.com/go-microservice/account-service/internal/service"
 )
 
 var (
@@ -94,8 +94,10 @@ func main() {
 		eagle.WithVersion(cfg.Version),
 		eagle.WithLogger(logger.GetLogger()),
 		eagle.WithServer(
-			// init http server
+			// init HTTP server
 			server.NewHTTPServer(&cfg.HTTP),
+			// init gRPC server
+			server.NewGRPCServer(&cfg.GRPC),
 		),
 	)
 

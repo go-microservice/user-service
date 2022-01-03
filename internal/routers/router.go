@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/middleware"
-	"github.com/go-microservice/internal/handler"
+	"github.com/go-microservice/account-service/internal/handler"
 )
 
 // Load loads the middlewares, routes, handlers.

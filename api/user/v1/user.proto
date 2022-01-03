@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/go-microservice/account-service/api/user/v1;v1";
+
+service User {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserReply) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserReply) {}
+  rpc GetUser(GetUserRequest) returns (GetUserReply) {}
+  rpc BatchGetUser(BatchGetUserRequest) returns (BatchGetUserReply) {}
+}
+
+message UserInfo {
+  int64 id = 1;
+  string username = 2;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserReply {
+  int64 id = 1;
+  string username = 2;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string password = 2;
+}
+
+message UpdateUserReply {
+  UserInfo user = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserReply {
+  UserInfo user = 1;
+}
+
+message BatchGetUserRequest {
+  string ids = 1;
+}
+
+message BatchGetUserReply {
+  repeated UserInfo users = 1;
+}

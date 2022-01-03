@@ -1,7 +1,7 @@
 package service
 
 import (
-	"account-temp/internal/repository"
+	"github.com/go-microservice/account-service/internal/repository"
 )
 
 // Svc global var
@@ -9,7 +9,7 @@ var Svc Service
 
 // Service define all service
 type Service interface {
-	Greeter() IGreeterService
+	Users() IUserService
 }
 
 // service struct
@@ -24,6 +24,6 @@ func New(repo repository.Repository) Service {
 	}
 }
 
-func (s *service) Greeter() IGreeterService {
-	return newGreeterService(s)
+func (s *service) Users() IUserService {
+	return newUserService(s)
 }
