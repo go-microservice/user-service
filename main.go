@@ -22,15 +22,15 @@ import (
 	"github.com/spf13/pflag"
 	_ "go.uber.org/automaxprocs"
 
-	"account-temp/internal/model"
-	"account-temp/internal/repository"
-	"account-temp/internal/server"
-	"account-temp/internal/service"
 	eagle "github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
 	v "github.com/go-eagle/eagle/pkg/version"
+	"github.com/go-microservice/internal/model"
+	"github.com/go-microservice/internal/repository"
+	"github.com/go-microservice/internal/server"
+	"github.com/go-microservice/internal/service"
 )
 
 var (

@@ -1,4 +1,4 @@
-module account-temp
+module github.com/go-microservice
 
 go 1.13
 
