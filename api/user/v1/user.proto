@@ -4,7 +4,7 @@ package user.v1;
 
 option go_package = "github.com/go-microservice/account-service/api/user/v1;v1";
 
-service User {
+service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserReply) {}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserReply) {}
   rpc GetUser(GetUserRequest) returns (GetUserReply) {}
@@ -44,10 +44,10 @@ message GetUserReply {
   UserInfo user = 1;
 }
 
-message BatchGetUserRequest {
+message BatchGetUsersRequest {
   string ids = 1;
 }
 
-message BatchGetUserReply {
+message BatchGetUsersReply {
   repeated UserInfo users = 1;
 }
