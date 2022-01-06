@@ -32,6 +32,6 @@ func New(db *gorm.DB) Repository {
 }
 
 // Close release mysql connection
-func (d *repository) Close() {
+func (r *repository) Close() {
 
 }
