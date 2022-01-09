@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_tableName           = (&model.UserBaseModel{}).TableName()
+	_tableUserBaseName   = (&model.UserBaseModel{}).TableName()
 	_getUserBaseSQL      = "SELECT * FROM %s WHERE id = ?"
 	_batchGetUserBaseSQL = "SELECT * FROM %s WHERE id IN (?)"
 )
@@ -19,29 +19,29 @@ var (
 func (r *repository) CreateUserBase(ctx context.Context, data *model.UserBaseModel) (id int64, err error) {
 	err = r.db.WithContext(ctx).Create(&data).Error
 	if err != nil {
-		return 0, errors.Wrap(err, "[repo.user_base] create user base err")
+		return 0, errors.Wrap(err, "[repo] create UserBase err")
 	}
 
 	return data.ID, nil
 }
 
-// UpdateUserBase update user base
+// UpdateUserBase update item
 func (r *repository) UpdateUserBase(ctx context.Context, id int64, data *model.UserBaseModel) error {
-	user, err := r.GetUserBase(ctx, id)
+	item, err := r.GetUserBase(ctx, id)
 	if err != nil {
-		return errors.Wrapf(err, "[repo.user_base] update user base err: %v", err)
+		return errors.Wrapf(err, "[repo] update UserBase err: %v", err)
 	}
-	err = r.db.Model(&user).Updates(data).Error
+	err = r.db.Model(&item).Updates(data).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// GetUserBase get a user
-func (r *repository) GetUserBase(ctx context.Context, uid int64) (ret *model.UserBaseModel, err error) {
+// GetUserBase get a record
+func (r *repository) GetUserBase(ctx context.Context, id int64) (ret *model.UserBaseModel, err error) {
 	item := new(model.UserBaseModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseSQL, _tableName), uid).Scan(&item).Error
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseSQL, _tableUserBaseName), id).Scan(&item).Error
 	if err != nil {
 		return
 	}
@@ -51,7 +51,7 @@ func (r *repository) GetUserBase(ctx context.Context, uid int64) (ret *model.Use
 // BatchGetUserBase batch get items
 func (r *repository) BatchGetUserBase(ctx context.Context, ids int64) (ret []*model.UserBaseModel, err error) {
 	items := make([]*model.UserBaseModel, 0)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserBaseSQL, _tableName), ids).Scan(&items).Error
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserBaseSQL, _tableUserBaseName), ids).Scan(&items).Error
 	if err != nil {
 		return
 	}
