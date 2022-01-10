@@ -6,7 +6,7 @@
 
 ### 1. 编写 proto 文件
 
-可以使用 `eagle proto add api/api/user/v1/user.proto` 的方式新建proto文件
+可以使用 `eagle proto add api/user/v1/user.proto` 的方式新建proto文件
 
 执行后，会在根目录下生成一个 proto 文件，里面直接写业务逻辑就可以了。
 
