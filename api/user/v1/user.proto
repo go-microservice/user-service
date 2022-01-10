@@ -5,35 +5,102 @@ package user.v1;
 option go_package = "github.com/go-microservice/account-service/api/user/v1;v1";
 
 service UserService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserReply) {}
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserReply) {}
+  rpc Register(RegisterRequest) returns (RegisterReply) {}
+  rpc Login(LoginRequest) returns (LoginReply) {}
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileReply) {}
+  rpc UpdatePassword(UpdatePasswordRequest) returns (UpdatePasswordReply) {}
   rpc GetUser(GetUserRequest) returns (GetUserReply) {}
-  rpc BatchGetUser(BatchGetUserRequest) returns (BatchGetUserReply) {}
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersReply) {}
 }
 
+enum StatusType {
+  UNKNOWN = 0;
+  NORMAL = 1;
+  DELETE = 2;
+}
+
+// user base info
 message UserInfo {
   int64 id = 1;
   string username = 2;
+  string email =3;
+  string phone = 4;
+  string last_login_at = 5;
+  StatusType status = 6;
 }
 
-message CreateUserRequest {
+// user profile
+message UserProfile {
+  enum GenderType {
+    UNKNOWN = 0;
+    MALE = 1;
+    FEMALE = 2;
+  };
+  int64 user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  GenderType gender = 4;
+  string string = 5;
+  string bio = 6;
+}
+
+message User {
+  enum GenderType {
+    UNKNOWN = 0;
+    MALE = 1;
+    FEMALE = 2;
+  };
+  int64 id = 1;
+  string username = 2;
+  string email =3;
+  string phone = 4;
+  string last_login_at = 5;
+  StatusType status = 6;
+  string nickname = 7;
+  string avatar = 8;
+  GenderType gender = 9;
+  string string = 10;
+  string bio = 11;
+}
+
+message RegisterRequest {
   string username = 1;
   string email = 2;
   string password = 3;
 }
 
-message CreateUserReply {
+message RegisterReply {
   int64 id = 1;
   string username = 2;
 }
 
-message UpdateUserRequest {
+message LoginRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message LoginReply {
+  int64 id = 1;
+  string username = 2;
+}
+
+message UpdateProfileRequest {
   string id = 1;
   string password = 2;
 }
 
-message UpdateUserReply {
+message UpdateProfileReply {
   UserInfo user = 1;
+}
+
+message UpdatePasswordRequest {
+  string user_id = 1;
+  string password = 2;
+}
+
+message UpdatePasswordReply {
+
 }
 
 message GetUserRequest {

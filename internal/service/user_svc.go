@@ -2,13 +2,15 @@ package service
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/go-microservice/account-service/internal/model"
 
 	"github.com/go-microservice/account-service/internal/repository"
 )
 
 type IUserService interface {
-	SayHi(ctx context.Context, name string) (string, error)
+	Register(ctx context.Context, data *model.UserInfoModel) (string, error)
+	Login(ctx context.Context, data *model.UserProfileModel) error
 }
 
 type userService struct {
@@ -21,6 +23,10 @@ func newUserService(svc *service) *userService {
 	return &userService{repo: svc.repo}
 }
 
-func (s *userService) SayHi(ctx context.Context, name string) (string, error) {
-	return fmt.Sprintf("Hi %s", name), nil
+func (s *userService) Register(ctx context.Context, data *model.UserInfoModel) (string, error) {
+	return "", nil
+}
+
+func (s *userService) Login(ctx context.Context, data *model.UserProfileModel) error {
+	return nil
 }

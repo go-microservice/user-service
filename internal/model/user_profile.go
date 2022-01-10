@@ -1,8 +1,9 @@
 package model
 
-// UserProfileModel User represents a registered user.
+// UserProfileModel define a user profile struct.
 type UserProfileModel struct {
 	ID        int64  `gorm:"primary_key;column:id" json:"id"`
+	UserID    int64  `gorm:"primary_key;column:user_id" json:"user_id"`
 	Nickname  string `gorm:"column:username" json:"nickname"`
 	Avatar    string `gorm:"column:avatar" json:"avatar"`
 	Gender    string `gorm:"column:gender" json:"gender"`
