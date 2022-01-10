@@ -8,7 +8,7 @@
 
 可以使用 `eagle proto add api/user/v1/user.proto` 的方式新建proto文件
 
-执行后，会在根目录下生成一个 proto 文件，里面直接写业务逻辑就可以了。
+执行后，会在对应的目录下生成一个 proto 文件，里面直接写业务定义就可以了。
 
 ### 2. 生成对应的pb文件
 
@@ -16,6 +16,8 @@
 
 1. `make grpc`
 2. `eagle proto client api/user/v1/user.proto`
+
+都会生成两个文件 `api/user/v1/user.pb.go` 和 `api/user/v1/user_grpc.pb.go`
 
 ### 3. 生成对应的server文件
 
