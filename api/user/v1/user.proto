@@ -108,7 +108,7 @@ message GetUserRequest {
 }
 
 message GetUserReply {
-  UserInfo user = 1;
+  User user = 1;
 }
 
 message BatchGetUsersRequest {
@@ -116,5 +116,5 @@ message BatchGetUsersRequest {
 }
 
 message BatchGetUsersReply {
-  repeated UserInfo users = 1;
+  repeated User users = 1;
 }
