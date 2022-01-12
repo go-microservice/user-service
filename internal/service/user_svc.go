@@ -22,7 +22,8 @@ const (
 
 type IUserService interface {
 	Register(ctx context.Context, username, email, password string) error
-	Login(ctx context.Context, data *model.UserProfileModel) error
+	Login(ctx context.Context, username, email, password string) error
+	PhoneLogin(ctx context.Context, phone, verifyCode string) error
 }
 
 type userService struct {
@@ -72,6 +73,12 @@ func (s *userService) Register(ctx context.Context, username, email, password st
 	return nil
 }
 
-func (s *userService) Login(ctx context.Context, data *model.UserProfileModel) error {
+// Login use username or email to login
+func (s *userService) Login(ctx context.Context, username, email, password string) error {
+	return nil
+}
+
+// PhoneLogin use phone number to login
+func (s *userService) PhoneLogin(ctx context.Context, phone, verifyCode string) error {
 	return nil
 }
