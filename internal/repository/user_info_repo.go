@@ -38,7 +38,7 @@ func (r *repository) UpdateUserInfo(ctx context.Context, id int64, data *model.U
 	return nil
 }
 
-// GetUserInfo get a record
+// GetUserInfo get a record by primary id
 func (r *repository) GetUserInfo(ctx context.Context, id int64) (ret *model.UserInfoModel, err error) {
 	item := new(model.UserInfoModel)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoSQL, _tableUserInfoName), id).Scan(&item).Error
@@ -48,7 +48,15 @@ func (r *repository) GetUserInfo(ctx context.Context, id int64) (ret *model.User
 	return item, nil
 }
 
-// BatchGetUserInfo batch get items
+func (r *repository) GetUserByUsername(ctx context.Context, username string) (*model.UserInfoModel, error) {
+	panic("implement me")
+}
+
+func (r *repository) GetUserByEmail(ctx context.Context, email string) (*model.UserInfoModel, error) {
+	panic("implement me")
+}
+
+// BatchGetUserInfo batch get items by primary id
 func (r *repository) BatchGetUserInfo(ctx context.Context, ids int64) (ret []*model.UserInfoModel, err error) {
 	items := make([]*model.UserInfoModel, 0)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserInfoSQL, _tableUserInfoName), ids).Scan(&items).Error

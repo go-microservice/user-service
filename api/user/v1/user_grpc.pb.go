@@ -8,6 +8,7 @@ package v1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -85,7 +86,7 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 
 func (c *userServiceClient) BatchGetUsers(ctx context.Context, in *BatchGetUsersRequest, opts ...grpc.CallOption) (*BatchGetUsersReply, error) {
 	out := new(BatchGetUsersReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/BatchGetUsers", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/BatchGetUserInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +126,7 @@ func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) 
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServiceServer) BatchGetUsers(context.Context, *BatchGetUsersRequest) (*BatchGetUsersReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BatchGetUsers not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method BatchGetUserInfo not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -240,7 +241,7 @@ func _UserService_BatchGetUsers_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/BatchGetUsers",
+		FullMethod: "/user.v1.UserService/BatchGetUserInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).BatchGetUsers(ctx, req.(*BatchGetUsersRequest))
@@ -276,7 +277,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetUser_Handler,
 		},
 		{
-			MethodName: "BatchGetUsers",
+			MethodName: "BatchGetUserInfo",
 			Handler:    _UserService_BatchGetUsers_Handler,
 		},
 	},

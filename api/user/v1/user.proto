@@ -17,6 +17,7 @@ enum StatusType {
   UNKNOWN = 0;
   NORMAL = 1;
   DELETE = 2;
+  Ban = 3;
 }
 
 // user base info
@@ -25,7 +26,7 @@ message UserInfo {
   string username = 2;
   string email =3;
   string phone = 4;
-  string last_login_at = 5;
+  string login_at = 5;
   StatusType status = 6;
 }
 
@@ -44,6 +45,7 @@ message UserProfile {
   string bio = 6;
 }
 
+// finally output to client
 message User {
   enum GenderType {
     UNKNOWN = 0;
@@ -54,7 +56,7 @@ message User {
   string username = 2;
   string email =3;
   string phone = 4;
-  string last_login_at = 5;
+  string login_at = 5;
   StatusType status = 6;
   string nickname = 7;
   string avatar = 8;
