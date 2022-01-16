@@ -20,7 +20,7 @@ func NewGRPCServer(cfg *app.ServerConfig) *grpc.Server {
 	)
 
 	// register biz service
-	v1.RegisterUserServiceServer(grpcServer, service.NewUserService())
+	v1.RegisterUserServiceServer(grpcServer, service.NewUserServiceServer())
 
 	return grpcServer
 }

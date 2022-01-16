@@ -35,6 +35,7 @@ func (r *repository) UpdateUserProfile(ctx context.Context, id int64, data *mode
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -45,6 +46,7 @@ func (r *repository) GetUserProfile(ctx context.Context, id int64) (ret *model.U
 	if err != nil {
 		return
 	}
+
 	return item, nil
 }
 
@@ -55,5 +57,6 @@ func (r *repository) BatchGetUserProfile(ctx context.Context, ids int64) (ret []
 	if err != nil {
 		return
 	}
+
 	return items, nil
 }

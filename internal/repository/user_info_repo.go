@@ -10,9 +10,12 @@ import (
 )
 
 var (
-	_tableUserInfoName   = (&model.UserInfoModel{}).TableName()
-	_getUserInfoSQL      = "SELECT * FROM %s WHERE id = ?"
-	_batchGetUserInfoSQL = "SELECT * FROM %s WHERE id IN (?)"
+	_tableUserInfoName        = (&model.UserInfoModel{}).TableName()
+	_getUserInfoSQL           = "SELECT * FROM %s WHERE id = ?"
+	_getUserInfoByUsernameSQL = "SELECT * FROM %s WHERE username = ?"
+	_getUserInfoByEmailSQL    = "SELECT * FROM %s WHERE email = ?"
+	_getUserInfoByPhoneSQL    = "SELECT * FROM %s WHERE phone = ?"
+	_batchGetUserInfoSQL      = "SELECT * FROM %s WHERE id IN (?)"
 )
 
 // CreateUserInfo create a item
@@ -35,6 +38,7 @@ func (r *repository) UpdateUserInfo(ctx context.Context, id int64, data *model.U
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -45,15 +49,38 @@ func (r *repository) GetUserInfo(ctx context.Context, id int64) (ret *model.User
 	if err != nil {
 		return
 	}
+
 	return item, nil
 }
 
-func (r *repository) GetUserByUsername(ctx context.Context, username string) (*model.UserInfoModel, error) {
-	panic("implement me")
+func (r *repository) GetUserByUsername(ctx context.Context, username string) (ret *model.UserInfoModel, err error) {
+	item := new(model.UserInfoModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByUsernameSQL, _tableUserInfoName), username).Scan(&item).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
 
-func (r *repository) GetUserByEmail(ctx context.Context, email string) (*model.UserInfoModel, error) {
-	panic("implement me")
+func (r *repository) GetUserByEmail(ctx context.Context, email string) (ret *model.UserInfoModel, err error) {
+	item := new(model.UserInfoModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByEmailSQL, _tableUserInfoName), email).Scan(&item).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+func (r *repository) GetUserByPhone(ctx context.Context, phone string) (ret *model.UserInfoModel, err error) {
+	item := new(model.UserInfoModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByPhoneSQL, _tableUserInfoName), phone).Scan(&item).Error
+	if err != nil {
+		return
+	}
+
+	return item, nil
 }
 
 // BatchGetUserInfo batch get items by primary id
@@ -63,5 +90,6 @@ func (r *repository) BatchGetUserInfo(ctx context.Context, ids int64) (ret []*mo
 	if err != nil {
 		return
 	}
+
 	return items, nil
 }

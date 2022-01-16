@@ -83,8 +83,7 @@ message LoginRequest {
 }
 
 message LoginReply {
-  int64 id = 1;
-  string username = 2;
+  string token = 1;
 }
 
 message UpdateProfileRequest {
@@ -106,7 +105,7 @@ message UpdatePasswordReply {
 }
 
 message GetUserRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
 message GetUserReply {

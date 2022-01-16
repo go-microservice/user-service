@@ -5,7 +5,6 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/go-eagle/eagle/cmd/job/example"
 	"github.com/go-eagle/eagle/pkg/log"
 )
 

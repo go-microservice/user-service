@@ -19,18 +19,16 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/pflag"
-	_ "go.uber.org/automaxprocs"
-
 	eagle "github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
 	v "github.com/go-eagle/eagle/pkg/version"
+	"github.com/spf13/pflag"
+	_ "go.uber.org/automaxprocs"
+
 	"github.com/go-microservice/account-service/internal/model"
-	"github.com/go-microservice/account-service/internal/repository"
 	"github.com/go-microservice/account-service/internal/server"
-	"github.com/go-microservice/account-service/internal/service"
 )
 
 var (
@@ -74,9 +72,6 @@ func main() {
 	model.Init()
 	// init redis
 	redis.Init()
-
-	// init service
-	service.Svc = service.New(repository.New(model.GetDB()))
 
 	gin.SetMode(cfg.Mode)
 
