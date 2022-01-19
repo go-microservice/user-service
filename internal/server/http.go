@@ -4,7 +4,7 @@ import (
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/transport/http"
 
-	"github.com/go-microservice/account-service/internal/routers"
+	"github.com/go-microservice/user-service/internal/routers"
 )
 
 // NewHTTPServer creates a HTTP server

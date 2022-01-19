@@ -1,4 +1,4 @@
-module github.com/go-microservice/account-service
+module github.com/go-microservice/user-service
 
 go 1.13
 

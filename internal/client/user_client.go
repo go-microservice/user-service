@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/go-microservice/account-service/api/user/v1"
+	pb "github.com/go-microservice/user-service/api/user/v1"
 	"google.golang.org/grpc"
 )
 

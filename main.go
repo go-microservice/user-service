@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/pflag"
 	_ "go.uber.org/automaxprocs"
 
-	"github.com/go-microservice/account-service/internal/model"
-	"github.com/go-microservice/account-service/internal/server"
+	"github.com/go-microservice/user-service/internal/model"
+	"github.com/go-microservice/user-service/internal/server"
 )
 
 var (

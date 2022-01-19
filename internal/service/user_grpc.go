@@ -6,18 +6,18 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	"github.com/go-microservice/account-service/internal/types"
+	"github.com/go-microservice/user-service/internal/types"
 
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
 
-	"github.com/go-microservice/account-service/internal/model"
-	"github.com/go-microservice/account-service/internal/repository"
+	"github.com/go-microservice/user-service/internal/model"
+	"github.com/go-microservice/user-service/internal/repository"
 
 	"github.com/go-eagle/eagle/pkg/errcode"
-	"github.com/go-microservice/account-service/internal/ecode"
+	"github.com/go-microservice/user-service/internal/ecode"
 
-	pb "github.com/go-microservice/account-service/api/user/v1"
+	pb "github.com/go-microservice/user-service/api/user/v1"
 )
 
 var (

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/go-microservice/account-service/internal/model"
+	"github.com/go-microservice/user-service/internal/model"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"

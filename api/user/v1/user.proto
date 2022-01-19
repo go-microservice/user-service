@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package user.v1;
 
-option go_package = "github.com/go-microservice/account-service/api/user/v1;v1";
+option go_package = "github.com/go-microservice/user-service/api/user/v1;v1";
 
-service UserService {
+service User {
   rpc Register(RegisterRequest) returns (RegisterReply) {}
   rpc Login(LoginRequest) returns (LoginReply) {}
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileReply) {}

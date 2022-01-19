@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/go-microservice/account-service/internal/model"
+	"github.com/go-microservice/user-service/internal/model"
 )
 
 var (

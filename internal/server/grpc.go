@@ -6,8 +6,8 @@ import (
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
 
-	v1 "github.com/go-microservice/account-service/api/user/v1"
-	"github.com/go-microservice/account-service/internal/service"
+	v1 "github.com/go-microservice/user-service/api/user/v1"
+	"github.com/go-microservice/user-service/internal/service"
 )
 
 // NewGRPCServer creates a gRPC server
