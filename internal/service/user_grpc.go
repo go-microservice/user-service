@@ -17,7 +17,7 @@ import (
 	"github.com/go-eagle/eagle/pkg/errcode"
 	"github.com/go-microservice/user-service/internal/ecode"
 
-	pb "github.com/go-microservice/user-service/api/user/v1"
+	pb "github.com/go-microservice/user-service/api/micro/user/v1"
 )
 
 var (
@@ -37,21 +37,21 @@ func NewUserServiceServer() *UserServiceServer {
 }
 
 func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterReply, error) {
-	var userInfo *model.UserInfoModel
+	var userBase *model.UserBaseModel
 	// check user is exist
-	userInfo, err := s.repo.GetUserByEmail(ctx, req.Email)
+	userBase, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
-	userInfo, err = s.repo.GetUserByUsername(ctx, req.Username)
+	userBase, err = s.repo.GetUserByUsername(ctx, req.Username)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
-	if userInfo != nil && userInfo.ID > 0 {
+	if userBase != nil && userBase.ID > 0 {
 		return nil, ecode.ErrUserIsExist.Status(req).Err()
 	}
 
@@ -62,14 +62,14 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	}
 
 	// if not exist, register a new user
-	data := &model.UserInfoModel{
+	data := &model.UserBaseModel{
 		Username:  req.Username,
 		Email:     req.Email,
 		Password:  pwd,
 		Status:    int32(pb.StatusType_NORMAL),
 		CreatedAt: time.Now().Unix(),
 	}
-	_, err = s.repo.CreateUserInfo(ctx, data)
+	_, err = s.repo.CreateUserBase(ctx, data)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
@@ -82,19 +82,19 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 }
 func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginReply, error) {
 	// get user base info
-	userInfo, err := s.repo.GetUserByEmail(ctx, req.Email)
+	userBase, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
-	userInfo, err = s.repo.GetUserByUsername(ctx, req.Username)
+	userBase, err = s.repo.GetUserByUsername(ctx, req.Username)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
-	if userInfo != nil && userInfo.ID > 0 {
+	if userBase != nil && userBase.ID > 0 {
 		return nil, ecode.ErrUserIsExist.Status(req).Err()
 	}
 
@@ -103,12 +103,12 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 	if err != nil {
 		return nil, ecode.ErrEncrypt.Status(req).Err()
 	}
-	if pwd != userInfo.Password {
+	if pwd != userBase.Password {
 		return nil, ecode.ErrPasswordIncorrect.Status(req).Err()
 	}
 
 	// Sign the json web token.
-	payload := map[string]interface{}{"user_id": userInfo.ID, "username": userInfo.Username}
+	payload := map[string]interface{}{"user_id": userBase.ID, "username": userBase.Username}
 	token, err := app.Sign(ctx, payload, app.Conf.JwtSecret, 86400)
 	if err != nil {
 		return nil, ecode.ErrToken.Status(req).Err()
@@ -125,7 +125,7 @@ func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePa
 	return &pb.UpdatePasswordReply{}, nil
 }
 func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
-	userInfo, err := s.repo.GetUserInfo(ctx, req.Id)
+	userBase, err := s.repo.GetUserBase(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -134,19 +134,19 @@ func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest)
 		return nil, err
 	}
 	user := &types.User{
-		ID:        userInfo.ID,
-		Username:  userInfo.Username,
-		Phone:     userInfo.Phone,
-		Email:     userInfo.Email,
-		LoginAt:   userInfo.LoginAt,
-		Status:    userInfo.Status,
+		ID:        userBase.ID,
+		Username:  userBase.Username,
+		Phone:     userBase.Phone,
+		Email:     userBase.Email,
+		LoginAt:   userBase.LoginAt,
+		Status:    userBase.Status,
 		Nickname:  userProfile.Nickname,
 		Avatar:    userProfile.Avatar,
 		Gender:    userProfile.Gender,
 		Birthday:  userProfile.Birthday,
 		Bio:       userProfile.Bio,
-		CreatedAt: userInfo.CreatedAt,
-		UpdatedAt: userInfo.UpdatedAt,
+		CreatedAt: userBase.CreatedAt,
+		UpdatedAt: userBase.UpdatedAt,
 	}
 
 	// copy to pb.user

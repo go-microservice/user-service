@@ -10,29 +10,29 @@ import (
 )
 
 var (
-	_tableUserInfoName        = (&model.UserInfoModel{}).TableName()
-	_getUserInfoSQL           = "SELECT * FROM %s WHERE id = ?"
-	_getUserInfoByUsernameSQL = "SELECT * FROM %s WHERE username = ?"
-	_getUserInfoByEmailSQL    = "SELECT * FROM %s WHERE email = ?"
-	_getUserInfoByPhoneSQL    = "SELECT * FROM %s WHERE phone = ?"
-	_batchGetUserInfoSQL      = "SELECT * FROM %s WHERE id IN (?)"
+	_tableUserBaseName        = (&model.UserBaseModel{}).TableName()
+	_getUserBaseSQL           = "SELECT * FROM %s WHERE id = ?"
+	_getUserBaseByUsernameSQL = "SELECT * FROM %s WHERE username = ?"
+	_getUserBaseByEmailSQL    = "SELECT * FROM %s WHERE email = ?"
+	_getUserBaseByPhoneSQL    = "SELECT * FROM %s WHERE phone = ?"
+	_batchGetUserBaseSQL      = "SELECT * FROM %s WHERE id IN (?)"
 )
 
-// CreateUserInfo create a item
-func (r *repository) CreateUserInfo(ctx context.Context, data *model.UserInfoModel) (id int64, err error) {
+// CreateUserBase create a item
+func (r *repository) CreateUserBase(ctx context.Context, data *model.UserBaseModel) (id int64, err error) {
 	err = r.db.WithContext(ctx).Create(&data).Error
 	if err != nil {
-		return 0, errors.Wrap(err, "[repo] create UserInfo err")
+		return 0, errors.Wrap(err, "[repo] create UserBase err")
 	}
 
 	return data.ID, nil
 }
 
-// UpdateUserInfo update item
-func (r *repository) UpdateUserInfo(ctx context.Context, id int64, data *model.UserInfoModel) error {
-	item, err := r.GetUserInfo(ctx, id)
+// UpdateUserBase update item
+func (r *repository) UpdateUserBase(ctx context.Context, id int64, data *model.UserBaseModel) error {
+	item, err := r.GetUserBase(ctx, id)
 	if err != nil {
-		return errors.Wrapf(err, "[repo] update UserInfo err: %v", err)
+		return errors.Wrapf(err, "[repo] update UserBase err: %v", err)
 	}
 	err = r.db.Model(&item).Updates(data).Error
 	if err != nil {
@@ -42,10 +42,10 @@ func (r *repository) UpdateUserInfo(ctx context.Context, id int64, data *model.U
 	return nil
 }
 
-// GetUserInfo get a record by primary id
-func (r *repository) GetUserInfo(ctx context.Context, id int64) (ret *model.UserInfoModel, err error) {
-	item := new(model.UserInfoModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoSQL, _tableUserInfoName), id).Scan(&item).Error
+// GetUserBase get a record by primary id
+func (r *repository) GetUserBase(ctx context.Context, id int64) (ret *model.UserBaseModel, err error) {
+	item := new(model.UserBaseModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseSQL, _tableUserBaseName), id).Scan(&item).Error
 	if err != nil {
 		return
 	}
@@ -53,9 +53,9 @@ func (r *repository) GetUserInfo(ctx context.Context, id int64) (ret *model.User
 	return item, nil
 }
 
-func (r *repository) GetUserByUsername(ctx context.Context, username string) (ret *model.UserInfoModel, err error) {
-	item := new(model.UserInfoModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByUsernameSQL, _tableUserInfoName), username).Scan(&item).Error
+func (r *repository) GetUserByUsername(ctx context.Context, username string) (ret *model.UserBaseModel, err error) {
+	item := new(model.UserBaseModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseByUsernameSQL, _tableUserBaseName), username).Scan(&item).Error
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +63,9 @@ func (r *repository) GetUserByUsername(ctx context.Context, username string) (re
 	return item, nil
 }
 
-func (r *repository) GetUserByEmail(ctx context.Context, email string) (ret *model.UserInfoModel, err error) {
-	item := new(model.UserInfoModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByEmailSQL, _tableUserInfoName), email).Scan(&item).Error
+func (r *repository) GetUserByEmail(ctx context.Context, email string) (ret *model.UserBaseModel, err error) {
+	item := new(model.UserBaseModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseByEmailSQL, _tableUserBaseName), email).Scan(&item).Error
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +73,9 @@ func (r *repository) GetUserByEmail(ctx context.Context, email string) (ret *mod
 	return item, nil
 }
 
-func (r *repository) GetUserByPhone(ctx context.Context, phone string) (ret *model.UserInfoModel, err error) {
-	item := new(model.UserInfoModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserInfoByPhoneSQL, _tableUserInfoName), phone).Scan(&item).Error
+func (r *repository) GetUserByPhone(ctx context.Context, phone string) (ret *model.UserBaseModel, err error) {
+	item := new(model.UserBaseModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseByPhoneSQL, _tableUserBaseName), phone).Scan(&item).Error
 	if err != nil {
 		return
 	}
@@ -83,10 +83,10 @@ func (r *repository) GetUserByPhone(ctx context.Context, phone string) (ret *mod
 	return item, nil
 }
 
-// BatchGetUserInfo batch get items by primary id
-func (r *repository) BatchGetUserInfo(ctx context.Context, ids int64) (ret []*model.UserInfoModel, err error) {
-	items := make([]*model.UserInfoModel, 0)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserInfoSQL, _tableUserInfoName), ids).Scan(&items).Error
+// BatchGetUserBase batch get items by primary id
+func (r *repository) BatchGetUserBase(ctx context.Context, ids int64) (ret []*model.UserBaseModel, err error) {
+	items := make([]*model.UserBaseModel, 0)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserBaseSQL, _tableUserBaseName), ids).Scan(&items).Error
 	if err != nil {
 		return
 	}

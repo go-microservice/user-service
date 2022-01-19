@@ -1,7 +1,7 @@
 package model
 
-// UserInfoModel define a user base info struct.
-type UserInfoModel struct {
+// UserBaseModel define a user base info struct.
+type UserBaseModel struct {
 	ID        int64  `gorm:"primary_key;AUTO_INCREMENT;column:id" json:"id"`
 	Username  string `gorm:"column:username" json:"username"`
 	Phone     string `gorm:"column:phone" json:"phone"`
@@ -14,6 +14,6 @@ type UserInfoModel struct {
 }
 
 // TableName 表名
-func (u *UserInfoModel) TableName() string {
-	return "user_info"
+func (u *UserBaseModel) TableName() string {
+	return "user_base"
 }

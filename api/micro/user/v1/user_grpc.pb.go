@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.12.3
-// source: api/user/v1/user.proto
+// source: api/micro/user/v1/user.proto
 
 package v1
 
@@ -40,7 +40,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 
 func (c *userServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error) {
 	out := new(RegisterReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/Register", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/Register", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *userServiceClient) Register(ctx context.Context, in *RegisterRequest, o
 
 func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error) {
 	out := new(LoginReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/Login", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 
 func (c *userServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileReply, error) {
 	out := new(UpdateProfileReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/UpdateProfile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/UpdateProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *userServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfile
 
 func (c *userServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordReply, error) {
 	out := new(UpdatePasswordReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/UpdatePassword", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/UpdatePassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (c *userServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswo
 
 func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
 	out := new(GetUserReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/GetUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 
 func (c *userServiceClient) BatchGetUsers(ctx context.Context, in *BatchGetUsersRequest, opts ...grpc.CallOption) (*BatchGetUsersReply, error) {
 	out := new(BatchGetUsersReply)
-	err := c.cc.Invoke(ctx, "/user.v1.UserService/BatchGetUsers", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/micro.user.v1.UserService/BatchGetUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func _UserService_Register_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/Register",
+		FullMethod: "/micro.user.v1.UserService/Register",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).Register(ctx, req.(*RegisterRequest))
@@ -168,7 +168,7 @@ func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/Login",
+		FullMethod: "/micro.user.v1.UserService/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).Login(ctx, req.(*LoginRequest))
@@ -186,7 +186,7 @@ func _UserService_UpdateProfile_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/UpdateProfile",
+		FullMethod: "/micro.user.v1.UserService/UpdateProfile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
@@ -204,7 +204,7 @@ func _UserService_UpdatePassword_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/UpdatePassword",
+		FullMethod: "/micro.user.v1.UserService/UpdatePassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
@@ -222,7 +222,7 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/GetUser",
+		FullMethod: "/micro.user.v1.UserService/GetUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
@@ -240,7 +240,7 @@ func _UserService_BatchGetUsers_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.v1.UserService/BatchGetUsers",
+		FullMethod: "/micro.user.v1.UserService/BatchGetUsers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).BatchGetUsers(ctx, req.(*BatchGetUsersRequest))
@@ -252,7 +252,7 @@ func _UserService_BatchGetUsers_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.v1.UserService",
+	ServiceName: "micro.user.v1.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -281,5 +281,5 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/user/v1/user.proto",
+	Metadata: "api/micro/user/v1/user.proto",
 }

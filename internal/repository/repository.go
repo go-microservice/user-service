@@ -19,13 +19,13 @@ var _ Repository = (*repository)(nil)
 // Repository define a repo interface
 type Repository interface {
 	// user info
-	CreateUserInfo(ctx context.Context, data *model.UserInfoModel) (id int64, err error)
-	UpdateUserInfo(ctx context.Context, id int64, data *model.UserInfoModel) error
-	GetUserInfo(ctx context.Context, id int64) (ret *model.UserInfoModel, err error)
-	GetUserByUsername(ctx context.Context, username string) (ret *model.UserInfoModel, err error)
-	GetUserByEmail(ctx context.Context, email string) (ret *model.UserInfoModel, err error)
-	GetUserByPhone(ctx context.Context, phone string) (ret *model.UserInfoModel, err error)
-	BatchGetUserInfo(ctx context.Context, ids int64) (ret []*model.UserInfoModel, err error)
+	CreateUserBase(ctx context.Context, data *model.UserBaseModel) (id int64, err error)
+	UpdateUserBase(ctx context.Context, id int64, data *model.UserBaseModel) error
+	GetUserBase(ctx context.Context, id int64) (ret *model.UserBaseModel, err error)
+	GetUserByUsername(ctx context.Context, username string) (ret *model.UserBaseModel, err error)
+	GetUserByEmail(ctx context.Context, email string) (ret *model.UserBaseModel, err error)
+	GetUserByPhone(ctx context.Context, phone string) (ret *model.UserBaseModel, err error)
+	BatchGetUserBase(ctx context.Context, ids int64) (ret []*model.UserBaseModel, err error)
 
 	// user profile
 	CreateUserProfile(ctx context.Context, data *model.UserProfileModel) (id int64, err error)
