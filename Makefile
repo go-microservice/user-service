@@ -141,7 +141,8 @@ init:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -v github.com/google/gnostic
-	go get -v github.com/google/gnostic/apps/protoc-gen-openapi
+	go get -v github.com/google/gnostic/cmd/protoc-gen-openapi
+	go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 .PHONY: proto
 # generate proto struct only
@@ -167,6 +168,15 @@ openapi:
           --proto_path=./third_party \
           --openapi_out=. \
           $(API_PROTO_FILES)
+	  
+.PHONY: doc
+# generate html or markdown doc
+doc:
+	protoc --proto_path=. \
+           --proto_path=./third_party \
+	   --doc_out=. \
+	   --doc_opt=html,index.html \
+	   $(API_PROTO_FILES)
 
 # show help
 help:
