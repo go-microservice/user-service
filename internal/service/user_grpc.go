@@ -81,29 +81,36 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	}, nil
 }
 func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginReply, error) {
-	// get user base info
-	userBase, err := s.repo.GetUserByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
-			"msg": err.Error(),
-		})).Status(req).Err()
-	}
-	userBase, err = s.repo.GetUserByUsername(ctx, req.Username)
-	if err != nil {
-		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
-			"msg": err.Error(),
-		})).Status(req).Err()
-	}
-	if userBase != nil && userBase.ID > 0 {
-		return nil, ecode.ErrUserIsExist.Status(req).Err()
+	if req.Email == "" && req.Username == "" {
+		return nil, ecode.ErrInvalidArgument.Status(req).Err()
 	}
 
-	// gen a hash password
-	pwd, err := auth.HashAndSalt(req.Password)
-	if err != nil {
-		return nil, ecode.ErrEncrypt.Status(req).Err()
+	// get user base info
+	var (
+		userBase *model.UserBaseModel
+		err      error
+	)
+	if req.Email != "" {
+		userBase, err = s.repo.GetUserByEmail(ctx, req.Email)
+		if err != nil {
+			return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+				"msg": err.Error(),
+			})).Status(req).Err()
+		}
 	}
-	if pwd != userBase.Password {
+	if userBase == nil && req.Username != "" {
+		userBase, err = s.repo.GetUserByUsername(ctx, req.Username)
+		if err != nil {
+			return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+				"msg": err.Error(),
+			})).Status(req).Err()
+		}
+	}
+	if userBase != nil && userBase.ID == 0 {
+		return nil, ecode.ErrUserNotFound.Status(req).Err()
+	}
+
+	if !auth.ComparePasswords(userBase.Password, req.Password) {
 		return nil, ecode.ErrPasswordIncorrect.Status(req).Err()
 	}
 

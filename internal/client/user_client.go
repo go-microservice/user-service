@@ -19,10 +19,13 @@ func main() {
 		_ = conn.Close()
 	}()
 
+	ctx := context.Background()
+
 	userClient := pb.NewUserServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 
+	// get user
 	userReq := &pb.GetUserRequest{
 		Id: 1,
 	}
@@ -30,5 +33,29 @@ func main() {
 	if err != nil {
 		log.Fatalf("[rpc] get user err: %v", err)
 	}
-	fmt.Printf("UserService  GetUser: %+v", reply)
+	fmt.Printf("UserService  GetUser: %+v\n", reply)
+
+	// register
+	registerReq := &pb.RegisterRequest{
+		Username: "test05",
+		Email:    "test05@go-eagle.org",
+		Password: "123456",
+	}
+	regReply, err := userClient.Register(ctx, registerReq)
+	if err != nil {
+		log.Fatalf("[rpc] register err: %v\n", err)
+	}
+	fmt.Printf("UserService  register resp: %+v\n", regReply)
+
+	// login
+	loginReq := &pb.LoginRequest{
+		Username: "",
+		Email:    "test05@go-eagle.org",
+		Password: "123456",
+	}
+	loginReply, err := userClient.Login(ctx, loginReq)
+	if err != nil {
+		log.Fatalf("[rpc] login err: %v\n", err)
+	}
+	fmt.Printf("UserService login resp: %+v\n", loginReply)
 }

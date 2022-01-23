@@ -25,7 +25,7 @@ type Repository interface {
 	GetUserByUsername(ctx context.Context, username string) (ret *model.UserBaseModel, err error)
 	GetUserByEmail(ctx context.Context, email string) (ret *model.UserBaseModel, err error)
 	GetUserByPhone(ctx context.Context, phone string) (ret *model.UserBaseModel, err error)
-	BatchGetUserBase(ctx context.Context, ids int64) (ret []*model.UserBaseModel, err error)
+	BatchGetUserBase(ctx context.Context, ids string) (ret []*model.UserBaseModel, err error)
 
 	// user profile
 	CreateUserProfile(ctx context.Context, data *model.UserProfileModel) (id int64, err error)

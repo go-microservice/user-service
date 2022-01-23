@@ -15,7 +15,7 @@ var (
 	_getUserBaseByUsernameSQL = "SELECT * FROM %s WHERE username = ?"
 	_getUserBaseByEmailSQL    = "SELECT * FROM %s WHERE email = ?"
 	_getUserBaseByPhoneSQL    = "SELECT * FROM %s WHERE phone = ?"
-	_batchGetUserBaseSQL      = "SELECT * FROM %s WHERE id IN (?)"
+	_batchGetUserBaseSQL      = "SELECT * FROM %s WHERE id IN (%s)"
 )
 
 // CreateUserBase create a item
@@ -84,9 +84,9 @@ func (r *repository) GetUserByPhone(ctx context.Context, phone string) (ret *mod
 }
 
 // BatchGetUserBase batch get items by primary id
-func (r *repository) BatchGetUserBase(ctx context.Context, ids int64) (ret []*model.UserBaseModel, err error) {
+func (r *repository) BatchGetUserBase(ctx context.Context, ids string) (ret []*model.UserBaseModel, err error) {
 	items := make([]*model.UserBaseModel, 0)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserBaseSQL, _tableUserBaseName), ids).Scan(&items).Error
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserBaseSQL, _tableUserBaseName, ids)).Scan(&items).Error
 	if err != nil {
 		return
 	}

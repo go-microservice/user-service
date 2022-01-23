@@ -8,8 +8,8 @@ import (
 //nolint: golint
 var (
 	// common errors
-	ErrInvalidArgumentUid = errcode.New(codes.InvalidArgument, "uids empty")
-	ErrInternalError      = errcode.New(codes.Internal, "internal error")
+	ErrInvalidArgument = errcode.New(codes.InvalidArgument, "Invalid argument")
+	ErrInternalError   = errcode.New(codes.Internal, "Internal error")
 
 	// user grpc errors
 	ErrUserIsExist           = errcode.New(20100, "The user already exists.")
