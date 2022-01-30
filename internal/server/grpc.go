@@ -3,6 +3,8 @@ package server
 import (
 	"time"
 
+	"github.com/google/wire"
+
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
 
@@ -10,8 +12,11 @@ import (
 	"github.com/go-microservice/user-service/internal/service"
 )
 
+// ProviderSet is server providers.
+var ProviderSet = wire.NewSet(NewGRPCServer)
+
 // NewGRPCServer creates a gRPC server
-func NewGRPCServer(cfg *app.ServerConfig) *grpc.Server {
+func NewGRPCServer(cfg *app.ServerConfig, svc *service.UserServiceServer) *grpc.Server {
 
 	grpcServer := grpc.NewServer(
 		grpc.Network("tcp"),
@@ -20,7 +25,7 @@ func NewGRPCServer(cfg *app.ServerConfig) *grpc.Server {
 	)
 
 	// register biz service
-	v1.RegisterUserServiceServer(grpcServer, service.NewUserServiceServer())
+	v1.RegisterUserServiceServer(grpcServer, svc)
 
 	return grpcServer
 }

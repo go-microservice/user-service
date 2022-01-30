@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-eagle/eagle/pkg/transport/grpc"
+
 	"github.com/gin-gonic/gin"
 	eagle "github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/config"
@@ -84,7 +86,17 @@ func main() {
 	}()
 
 	// start app
-	app := eagle.New(
+	app, err := InitApp(&cfg, &cfg.GRPC)
+	if err != nil {
+		panic(err)
+	}
+	if err := app.Run(); err != nil {
+		panic(err)
+	}
+}
+
+func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
+	return eagle.New(
 		eagle.WithName(cfg.Name),
 		eagle.WithVersion(cfg.Version),
 		eagle.WithLogger(logger.GetLogger()),
@@ -92,11 +104,7 @@ func main() {
 			// init HTTP server
 			server.NewHTTPServer(&cfg.HTTP),
 			// init gRPC server
-			server.NewGRPCServer(&cfg.GRPC),
+			gs,
 		),
 	)
-
-	if err := app.Run(); err != nil {
-		panic(err)
-	}
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/wire"
+
 	"github.com/jinzhu/copier"
 
 	"github.com/go-microservice/user-service/internal/types"
@@ -24,15 +26,20 @@ var (
 	_ pb.UserServiceServer = (*UserServiceServer)(nil)
 )
 
+// ProviderSet is service providers.
+var ProviderSet = wire.NewSet(NewUserServiceServer)
+
 type UserServiceServer struct {
 	pb.UnimplementedUserServiceServer
 
-	repo repository.Repository
+	repo        repository.UserBaseRepo
+	profileRepo repository.UserProfileRepo
 }
 
-func NewUserServiceServer() *UserServiceServer {
+func NewUserServiceServer(br repository.UserBaseRepo, pr repository.UserProfileRepo) *UserServiceServer {
 	return &UserServiceServer{
-		repo: repository.New(model.GetDB()),
+		repo:        br,
+		profileRepo: pr,
 	}
 }
 
@@ -136,7 +143,7 @@ func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest)
 	if err != nil {
 		return nil, err
 	}
-	userProfile, err := s.repo.GetUserProfile(ctx, req.Id)
+	userProfile, err := s.profileRepo.GetUserProfile(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
