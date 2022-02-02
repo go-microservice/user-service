@@ -53,14 +53,15 @@ func (c *UserBaseCache) SetUserBaseCache(ctx context.Context, id int64, data *mo
 }
 
 // GetUserBaseCache 获取cache
-func (c *UserBaseCache) GetUserBaseCache(ctx context.Context, id int64) (data *model.UserBaseModel, err error) {
+func (c *UserBaseCache) GetUserBaseCache(ctx context.Context, id int64) (ret *model.UserBaseModel, err error) {
+	data := model.UserBaseModel{}
 	cacheKey := c.GetUserBaseCacheKey(id)
 	err = c.cache.Get(ctx, cacheKey, &data)
 	if err != nil {
 		log.WithContext(ctx).Warnf("get err from redis, err: %+v", err)
 		return nil, err
 	}
-	return data, nil
+	return &data, nil
 }
 
 // MultiGetUserBaseCache 批量获取cache
@@ -78,6 +79,21 @@ func (c *UserBaseCache) MultiGetUserBaseCache(ctx context.Context, ids []int64) 
 		return nil, err
 	}
 	return retMap, nil
+}
+
+// MultiSetUserBaseCache 批量设置cache
+func (c *UserBaseCache) MultiSetUserBaseCache(ctx context.Context, data []*model.UserBaseModel, duration time.Duration) error {
+	valMap := make(map[string]interface{})
+	for _, v := range data {
+		cacheKey := c.GetUserBaseCacheKey(v.ID)
+		valMap[cacheKey] = v
+	}
+
+	err := c.cache.MultiSet(ctx, valMap, duration)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DelUserBaseCache 删除cache

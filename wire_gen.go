@@ -7,6 +7,7 @@ package main
 
 import (
 	"github.com/go-eagle/eagle/pkg/app"
+	"github.com/go-microservice/user-service/internal/cache"
 	"github.com/go-microservice/user-service/internal/repository"
 	"github.com/go-microservice/user-service/internal/server"
 	"github.com/go-microservice/user-service/internal/service"
@@ -20,8 +21,10 @@ import (
 
 func InitApp(cfg *app.Config, config *app.ServerConfig) (*app.App, error) {
 	db := repository.NewGORMClient()
-	userBaseRepo := repository.NewUserBase(db)
-	userProfileRepo := repository.NewUserProfile(db)
+	userBaseCache := cache.NewUserBaseCache()
+	userBaseRepo := repository.NewUserBase(db, userBaseCache)
+	userProfileCache := cache.NewUserProfileCache()
+	userProfileRepo := repository.NewUserProfile(db, userProfileCache)
 	userServiceServer := service.NewUserServiceServer(userBaseRepo, userProfileRepo)
 	grpcServer := server.NewGRPCServer(config, userServiceServer)
 	appApp := newApp(cfg, grpcServer)

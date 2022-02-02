@@ -2,24 +2,22 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"time"
-
-	"github.com/google/wire"
-
-	"github.com/jinzhu/copier"
-
-	"github.com/go-microservice/user-service/internal/types"
 
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
-
-	"github.com/go-microservice/user-service/internal/model"
-	"github.com/go-microservice/user-service/internal/repository"
-
 	"github.com/go-eagle/eagle/pkg/errcode"
-	"github.com/go-microservice/user-service/internal/ecode"
+	"github.com/google/wire"
+	"github.com/jinzhu/copier"
+	"github.com/spf13/cast"
 
 	pb "github.com/go-microservice/user-service/api/micro/user/v1"
+	"github.com/go-microservice/user-service/internal/ecode"
+	"github.com/go-microservice/user-service/internal/model"
+	"github.com/go-microservice/user-service/internal/repository"
+	"github.com/go-microservice/user-service/internal/types"
 )
 
 var (
@@ -147,33 +145,90 @@ func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest)
 	if err != nil {
 		return nil, err
 	}
-	user := &types.User{
-		ID:        userBase.ID,
-		Username:  userBase.Username,
-		Phone:     userBase.Phone,
-		Email:     userBase.Email,
-		LoginAt:   userBase.LoginAt,
-		Status:    userBase.Status,
-		Nickname:  userProfile.Nickname,
-		Avatar:    userProfile.Avatar,
-		Gender:    userProfile.Gender,
-		Birthday:  userProfile.Birthday,
-		Bio:       userProfile.Bio,
-		CreatedAt: userBase.CreatedAt,
-		UpdatedAt: userBase.UpdatedAt,
-	}
-
-	// copy to pb.user
-	u := pb.User{}
-	err = copier.Copy(&u, &user)
+	u, err := convertUser(userBase, userProfile)
 	if err != nil {
 		return nil, err
 	}
 
 	return &pb.GetUserReply{
-		User: &u,
+		User: u,
 	}, nil
 }
 func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetUsersRequest) (*pb.BatchGetUsersReply, error) {
-	return &pb.BatchGetUsersReply{}, nil
+	if len(req.GetIds()) == 0 {
+		return nil, errors.New("ids is empty")
+	}
+
+	idsStr := strings.Split(req.Ids, ",")
+	var (
+		ids   []int64
+		users []*pb.User
+	)
+	for _, v := range idsStr {
+		ids = append(ids, cast.ToInt64(v))
+	}
+	userBases, err := s.repo.BatchGetUserBase(ctx, ids)
+	if err != nil {
+		return nil, ecode.ErrInternalError.Status(req).Err()
+	}
+	userBaseMap := make(map[int64]*model.UserBaseModel, 0)
+	for _, val := range userBases {
+		userBaseMap[val.ID] = val
+	}
+	userProfiles, err := s.profileRepo.BatchGetUserProfile(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	userProfileMap := make(map[int64]*model.UserProfileModel, 0)
+	for _, val := range userProfiles {
+		userProfileMap[val.UserID] = val
+	}
+
+	// compose data
+	for _, id := range ids {
+		userBase, ok := userBaseMap[id]
+		if !ok {
+			continue
+		}
+		userProfile, ok := userProfileMap[id]
+		if !ok {
+			userProfile = &model.UserProfileModel{}
+		}
+		u, err := convertUser(userBase, userProfile)
+		if err != nil {
+			// record log
+			continue
+		}
+		users = append(users, u)
+	}
+
+	return &pb.BatchGetUsersReply{
+		Users: users,
+	}, nil
+}
+
+func convertUser(userBase *model.UserBaseModel, userProfile *model.UserProfileModel) (*pb.User, error) {
+	user := &types.User{
+		ID:       userBase.ID,
+		Username: userBase.Username,
+		Phone:    userBase.Phone,
+		Email:    userBase.Email,
+		LoginAt:  userBase.LoginAt,
+		Status:   userBase.Status,
+		//Nickname:  userProfile.Nickname,
+		//Avatar:    userProfile.Avatar,
+		//Gender:    userProfile.Gender,
+		//Birthday:  userProfile.Birthday,
+		//Bio:       userProfile.Bio,
+		CreatedAt: userBase.CreatedAt,
+		UpdatedAt: userBase.UpdatedAt,
+	}
+
+	// copy to pb.user
+	u := &pb.User{}
+	err := copier.Copy(u, &user)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }

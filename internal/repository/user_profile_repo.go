@@ -3,6 +3,12 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
+	"github.com/go-microservice/user-service/internal/cache"
+
+	"github.com/spf13/cast"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -16,7 +22,7 @@ import (
 var (
 	_tableUserProfileName   = (&model.UserProfileModel{}).TableName()
 	_getUserProfileSQL      = "SELECT * FROM %s WHERE id = ?"
-	_batchGetUserProfileSQL = "SELECT * FROM %s WHERE id IN (?)"
+	_batchGetUserProfileSQL = "SELECT * FROM %s WHERE id IN (%s)"
 )
 
 var _ UserProfileRepo = (*userProfileRepo)(nil)
@@ -26,20 +32,22 @@ type UserProfileRepo interface {
 	CreateUserProfile(ctx context.Context, data *model.UserProfileModel) (id int64, err error)
 	UpdateUserProfile(ctx context.Context, id int64, data *model.UserProfileModel) error
 	GetUserProfile(ctx context.Context, id int64) (ret *model.UserProfileModel, err error)
-	BatchGetUserProfile(ctx context.Context, ids int64) (ret []*model.UserProfileModel, err error)
+	BatchGetUserProfile(ctx context.Context, ids []int64) (ret []*model.UserProfileModel, err error)
 }
 
 // userProfileRepo struct
 type userProfileRepo struct {
 	db     *gorm.DB
 	tracer trace.Tracer
+	cache  *cache.UserProfileCache
 }
 
 // New new a repository and return
-func NewUserProfile(db *gorm.DB) UserProfileRepo {
+func NewUserProfile(db *gorm.DB, cache *cache.UserProfileCache) UserProfileRepo {
 	return &userProfileRepo{
 		db:     db,
 		tracer: otel.Tracer("repository"),
+		cache:  cache,
 	}
 }
 
@@ -79,12 +87,44 @@ func (r *userProfileRepo) GetUserProfile(ctx context.Context, id int64) (ret *mo
 }
 
 // BatchGetUserProfile batch get items
-func (r *userProfileRepo) BatchGetUserProfile(ctx context.Context, ids int64) (ret []*model.UserProfileModel, err error) {
+func (r *userProfileRepo) BatchGetUserProfile(ctx context.Context, ids []int64) (ret []*model.UserProfileModel, err error) {
 	items := make([]*model.UserProfileModel, 0)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserProfileSQL, _tableUserProfileName), ids).Scan(&items).Error
 	if err != nil {
 		return
 	}
 
-	return items, nil
+	idsStr := cast.ToStringSlice(ids)
+	itemMap, err := r.cache.MultiGetUserProfileCache(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	var missedID []int64
+	for _, v := range ids {
+		item, ok := itemMap[cast.ToString(v)]
+		if !ok {
+			missedID = append(missedID, v)
+			continue
+		}
+		ret = append(ret, item)
+	}
+	// get missed data
+	if len(missedID) > 0 {
+		var missedData []*model.UserProfileModel
+		_sql := fmt.Sprintf(_batchGetUserProfileSQL, _tableUserProfileName, strings.Join(idsStr, ","))
+		err = r.db.WithContext(ctx).Raw(_sql).Scan(&missedData).Error
+		if err != nil {
+			// you can degrade to ignore error
+			return nil, err
+		}
+		if len(missedData) > 0 {
+			ret = append(ret, missedData...)
+			err = r.cache.MultiSetUserProfileCache(ctx, ret, 5*time.Minute)
+			if err != nil {
+				// you can degrade to ignore error
+				return nil, err
+			}
+		}
+	}
+	return ret, nil
 }
