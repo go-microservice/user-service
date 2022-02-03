@@ -88,12 +88,6 @@ func (r *userProfileRepo) GetUserProfile(ctx context.Context, id int64) (ret *mo
 
 // BatchGetUserProfile batch get items
 func (r *userProfileRepo) BatchGetUserProfile(ctx context.Context, ids []int64) (ret []*model.UserProfileModel, err error) {
-	items := make([]*model.UserProfileModel, 0)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_batchGetUserProfileSQL, _tableUserProfileName), ids).Scan(&items).Error
-	if err != nil {
-		return
-	}
-
 	idsStr := cast.ToStringSlice(ids)
 	itemMap, err := r.cache.MultiGetUserProfileCache(ctx, ids)
 	if err != nil {
@@ -119,7 +113,7 @@ func (r *userProfileRepo) BatchGetUserProfile(ctx context.Context, ids []int64) 
 		}
 		if len(missedData) > 0 {
 			ret = append(ret, missedData...)
-			err = r.cache.MultiSetUserProfileCache(ctx, ret, 5*time.Minute)
+			err = r.cache.MultiSetUserProfileCache(ctx, missedData, 5*time.Minute)
 			if err != nil {
 				// you can degrade to ignore error
 				return nil, err

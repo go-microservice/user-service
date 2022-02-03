@@ -167,6 +167,8 @@ func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetU
 	for _, v := range idsStr {
 		ids = append(ids, cast.ToInt64(v))
 	}
+
+	// user base
 	userBases, err := s.repo.BatchGetUserBase(ctx, ids)
 	if err != nil {
 		return nil, ecode.ErrInternalError.Status(req).Err()
@@ -175,13 +177,14 @@ func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetU
 	for _, val := range userBases {
 		userBaseMap[val.ID] = val
 	}
+	// user profile
 	userProfiles, err := s.profileRepo.BatchGetUserProfile(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 	userProfileMap := make(map[int64]*model.UserProfileModel, 0)
 	for _, val := range userProfiles {
-		userProfileMap[val.UserID] = val
+		userProfileMap[val.ID] = val
 	}
 
 	// compose data
@@ -209,17 +212,17 @@ func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetU
 
 func convertUser(userBase *model.UserBaseModel, userProfile *model.UserProfileModel) (*pb.User, error) {
 	user := &types.User{
-		ID:       userBase.ID,
-		Username: userBase.Username,
-		Phone:    userBase.Phone,
-		Email:    userBase.Email,
-		LoginAt:  userBase.LoginAt,
-		Status:   userBase.Status,
-		//Nickname:  userProfile.Nickname,
-		//Avatar:    userProfile.Avatar,
-		//Gender:    userProfile.Gender,
-		//Birthday:  userProfile.Birthday,
-		//Bio:       userProfile.Bio,
+		Id:        userBase.ID,
+		Username:  userBase.Username,
+		Phone:     userBase.Phone,
+		Email:     userBase.Email,
+		LoginAt:   userBase.LoginAt,
+		Status:    userBase.Status,
+		Nickname:  userProfile.Nickname,
+		Avatar:    userProfile.Avatar,
+		Gender:    userProfile.Gender,
+		Birthday:  userProfile.Birthday,
+		Bio:       userProfile.Bio,
 		CreatedAt: userBase.CreatedAt,
 		UpdatedAt: userBase.UpdatedAt,
 	}

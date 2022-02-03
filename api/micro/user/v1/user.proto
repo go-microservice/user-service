@@ -26,8 +26,10 @@ message UserBase {
   string username = 2;
   string email =3;
   string phone = 4;
-  string login_at = 5;
+  int64 login_at = 5;
   StatusType status = 6;
+  int64 created_at = 7;
+  int64 updated_at = 8;
 }
 
 // user profile
@@ -56,13 +58,15 @@ message User {
   string username = 2;
   string email =3;
   string phone = 4;
-  string login_at = 5;
+  int64  login_at = 5;
   StatusType status = 6;
   string nickname = 7;
   string avatar = 8;
   GenderType gender = 9;
-  string string = 10;
+  string birthday = 10;
   string bio = 11;
+  int64 created_at = 12;
+  int64 updated_at = 13;
 }
 
 message RegisterRequest {

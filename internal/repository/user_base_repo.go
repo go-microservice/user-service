@@ -82,6 +82,7 @@ func (r *userBaseRepo) UpdateUserBase(ctx context.Context, id int64, data *model
 
 // GetUserBase get a record by primary id
 func (r *userBaseRepo) GetUserBase(ctx context.Context, id int64) (ret *model.UserBaseModel, err error) {
+	// read cache
 	item, err := r.cache.GetUserBaseCache(ctx, id)
 	if err != nil {
 		return nil, err
@@ -90,6 +91,7 @@ func (r *userBaseRepo) GetUserBase(ctx context.Context, id int64) (ret *model.Us
 		return item, nil
 	}
 
+	// write cache
 	data := new(model.UserBaseModel)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseSQL, _tableUserBaseName), id).Scan(&data).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -161,7 +163,7 @@ func (r *userBaseRepo) BatchGetUserBase(ctx context.Context, ids []int64) (ret [
 		}
 		if len(missedData) > 0 {
 			ret = append(ret, missedData...)
-			err = r.cache.MultiSetUserBaseCache(ctx, ret, 5*time.Minute)
+			err = r.cache.MultiSetUserBaseCache(ctx, missedData, 5*time.Minute)
 			if err != nil {
 				// you can degrade to ignore error
 				return nil, err

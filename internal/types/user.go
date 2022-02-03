@@ -2,7 +2,7 @@ package types
 
 // User include user base info and user profile
 type User struct {
-	ID        int64  `json:"id"`
+	Id        int64  `json:"id"`
 	Username  string `json:"username"`
 	Phone     string `json:"phone"`
 	Email     string `json:"email"`

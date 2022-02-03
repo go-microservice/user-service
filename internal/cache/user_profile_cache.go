@@ -53,7 +53,8 @@ func (c *UserProfileCache) SetUserProfileCache(ctx context.Context, id int64, da
 }
 
 // GetUserProfileCache 获取cache
-func (c *UserProfileCache) GetUserProfileCache(ctx context.Context, id int64) (data *model.UserProfileModel, err error) {
+func (c *UserProfileCache) GetUserProfileCache(ctx context.Context, id int64) (ret *model.UserProfileModel, err error) {
+	var data *model.UserProfileModel
 	cacheKey := c.GetUserProfileCacheKey(id)
 	err = c.cache.Get(ctx, cacheKey, &data)
 	if err != nil {

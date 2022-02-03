@@ -33,17 +33,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("[rpc] get user err: %v", err)
 	}
-	fmt.Printf("UserService  GetUser: %+v\n", reply.GetUser().Id)
+	fmt.Printf("UserService  GetUser: %+v\n", reply.User)
 
 	// batch get user
-	//batchUserReq := &pb.BatchGetUsersRequest{
-	//	Ids: "1,2,3",
-	//}
-	//rep, err := userClient.BatchGetUsers(ctx, batchUserReq)
-	//if err != nil {
-	//	log.Fatalf("[rpc] batch get user err: %v", err)
-	//}
-	//fmt.Printf("UserService  BatchGetUser: %+v\n", rep)
+	batchUserReq := &pb.BatchGetUsersRequest{
+		Ids: "1,2",
+	}
+	rep, err := userClient.BatchGetUsers(ctx, batchUserReq)
+	if err != nil {
+		log.Fatalf("[rpc] batch get user err: %v", err)
+	}
+	fmt.Printf("UserService  BatchGetUser: %+v\n", rep)
 
 	// register
 	//registerReq := &pb.RegisterRequest{
