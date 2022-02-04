@@ -46,7 +46,7 @@ type userProfileRepo struct {
 func NewUserProfile(db *gorm.DB, cache *cache.UserProfileCache) UserProfileRepo {
 	return &userProfileRepo{
 		db:     db,
-		tracer: otel.Tracer("repository"),
+		tracer: otel.Tracer("repo"),
 		cache:  cache,
 	}
 }
@@ -72,18 +72,37 @@ func (r *userProfileRepo) UpdateUserProfile(ctx context.Context, id int64, data 
 		return err
 	}
 
+	// delete cache
+	_ = r.cache.DelUserProfileCache(ctx, id)
+
 	return nil
 }
 
 // GetUserProfile get a record
 func (r *userProfileRepo) GetUserProfile(ctx context.Context, id int64) (ret *model.UserProfileModel, err error) {
-	item := new(model.UserProfileModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserProfileSQL, _tableUserProfileName), id).Scan(&item).Error
+	// read cache
+	item, err := r.cache.GetUserProfileCache(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if item != nil {
+		return item, nil
+	}
+
+	data := new(model.UserProfileModel)
+	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserProfileSQL, _tableUserProfileName), id).Scan(&data).Error
 	if err != nil {
 		return
 	}
 
-	return item, nil
+	if data.ID > 0 {
+		err = r.cache.SetUserProfileCache(ctx, id, data, 5*time.Minute)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return data, nil
 }
 
 // BatchGetUserProfile batch get items

@@ -98,9 +98,11 @@ func (r *userBaseRepo) GetUserBase(ctx context.Context, id int64) (ret *model.Us
 		return nil, err
 	}
 
-	err = r.cache.SetUserBaseCache(ctx, id, data, 5*time.Minute)
-	if err != nil {
-		return nil, err
+	if data.ID > 0 {
+		err = r.cache.SetUserBaseCache(ctx, id, data, 5*time.Minute)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return data, nil
