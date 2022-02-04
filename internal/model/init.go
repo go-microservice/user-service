@@ -9,8 +9,14 @@ import (
 	"github.com/go-eagle/eagle/pkg/storage/orm"
 )
 
+var (
+	ErrRecordNotFound = gorm.ErrRecordNotFound
+)
+
 // DB 数据库全局变量
-var DB *gorm.DB
+var (
+	DB *gorm.DB
+)
 
 // Init 初始化数据库
 func Init() *gorm.DB {

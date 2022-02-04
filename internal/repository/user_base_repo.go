@@ -94,7 +94,7 @@ func (r *userBaseRepo) GetUserBase(ctx context.Context, id int64) (ret *model.Us
 	// write cache
 	data := new(model.UserBaseModel)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserBaseSQL, _tableUserBaseName), id).Scan(&data).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && err != model.ErrRecordNotFound {
 		return nil, err
 	}
 

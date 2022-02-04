@@ -6,16 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-microservice/user-service/internal/cache"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
 
-	"github.com/pkg/errors"
-
+	"github.com/go-microservice/user-service/internal/cache"
 	"github.com/go-microservice/user-service/internal/model"
 )
 
@@ -91,7 +88,7 @@ func (r *userProfileRepo) GetUserProfile(ctx context.Context, id int64) (ret *mo
 
 	data := new(model.UserProfileModel)
 	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserProfileSQL, _tableUserProfileName), id).Scan(&data).Error
-	if err != nil {
+	if err != nil && err != model.ErrRecordNotFound {
 		return
 	}
 
