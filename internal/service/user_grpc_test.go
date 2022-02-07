@@ -52,8 +52,8 @@ func initGRPCServerBuffConn() {
 }
 
 func TestUserServiceServer_GetUser(t *testing.T) {
-	initGRPCServerHTTP2()
-	//initGRPCServerBuffConn()
+	//initGRPCServerHTTP2()
+	initGRPCServerBuffConn()
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect, err: %v", err)
