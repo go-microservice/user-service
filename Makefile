@@ -130,7 +130,7 @@ graph:
 mockgen:
 	@echo "downloading mockgen"
 	@go get github.com/golang/mock/mockgen
-	cd ./internal &&  for file in `egrep -rnl "type.*?interface" ./dao | grep -v "_test" `; do \
+	cd ./internal &&  for file in `egrep -rnl "type.*?interface" ./repository | grep -v "_test" `; do \
 		echo $$file ; \
 		cd .. && mockgen -destination="./internal/mock/$$file" -source="./internal/$$file" && cd ./internal ; \
 	done
