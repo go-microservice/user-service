@@ -66,15 +66,14 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 		return nil, errcode.ErrEncrypt
 	}
 
-	// if not exist, register a new user
-	data := &model.UserBaseModel{
-		Username:  req.Username,
-		Email:     req.Email,
-		Password:  pwd,
-		Status:    int32(pb.StatusType_NORMAL),
-		CreatedAt: time.Now().Unix(),
+	// create a new user
+	user, err := newUser(req.Username, req.Email, pwd)
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
 	}
-	_, err = s.repo.CreateUserBase(ctx, data)
+	_, err = s.repo.CreateUserBase(ctx, user)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
@@ -85,6 +84,17 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 		Username: req.Username,
 	}, nil
 }
+
+func newUser(username, email, password string) (*model.UserBaseModel, error) {
+	return &model.UserBaseModel{
+		Username:  username,
+		Email:     email,
+		Password:  password,
+		Status:    int32(pb.StatusType_NORMAL),
+		CreatedAt: time.Now().Unix(),
+	}, nil
+}
+
 func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginReply, error) {
 	if req.Email == "" && req.Username == "" {
 		return nil, ecode.ErrInvalidArgument.Status(req).Err()
@@ -130,10 +140,65 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		Token: token,
 	}, nil
 }
+
+func (s *UserServiceServer) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
+	// gen a hash password
+	pwd, err := auth.HashAndSalt(req.Password)
+	if err != nil {
+		return nil, errcode.ErrEncrypt
+	}
+
+	// create a new user
+	user, err := newUser(req.Username, req.Email, pwd)
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+	id, err := s.repo.CreateUserBase(ctx, user)
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+
+	return &pb.CreateUserReply{
+		Id:       id,
+		Username: req.Username,
+	}, nil
+}
+
+func (s *UserServiceServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserReply, error) {
+	user := &model.UserBaseModel{
+		Username:  req.Username,
+		Email:     req.Email,
+		UpdatedAt: time.Now().Unix(),
+	}
+	err := s.repo.UpdateUserBase(ctx, req.UserId, user)
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+
+	return &pb.UpdateUserReply{}, nil
+}
+
 func (s *UserServiceServer) UpdateProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UpdateProfileReply, error) {
 	return &pb.UpdateProfileReply{}, nil
 }
 func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePasswordRequest) (*pb.UpdatePasswordReply, error) {
+	user := &model.UserBaseModel{
+		Password:  req.Password,
+		UpdatedAt: time.Now().Unix(),
+	}
+	err := s.repo.UpdateUserBase(ctx, req.UserId, user)
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+
 	return &pb.UpdatePasswordReply{}, nil
 }
 func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
