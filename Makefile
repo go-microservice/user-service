@@ -128,8 +128,6 @@ graph:
 .PHONY: mockgen
 # make mockgen gen mock file
 mockgen:
-	@echo "downloading mockgen"
-	@go get github.com/golang/mock/mockgen
 	cd ./internal &&  for file in `egrep -rnl "type.*?interface" ./repository | grep -v "_test" `; do \
 		echo $$file ; \
 		cd .. && mockgen -destination="./internal/mock/$$file" -source="./internal/$$file" && cd ./internal ; \
@@ -143,6 +141,7 @@ init:
 	go get -v github.com/google/gnostic
 	go get -v github.com/google/gnostic/cmd/protoc-gen-openapi
 	go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+	go get github.com/golang/mock/mockgen
 
 .PHONY: proto
 # generate proto struct only
