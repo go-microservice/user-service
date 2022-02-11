@@ -8,39 +8,47 @@ import (
 	"github.com/go-eagle/eagle/pkg/cache"
 	"github.com/go-eagle/eagle/pkg/encoding"
 	"github.com/go-eagle/eagle/pkg/log"
-	"github.com/go-eagle/eagle/pkg/redis"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/go-microservice/user-service/internal/model"
 )
 
 const (
 	// PrefixUserCacheKey cache prefix
-	PrefixUserCacheKey = "User:%d"
+	PrefixUserCacheKey = "user:%d"
 )
 
-// UserCache define a cache struct
-type UserCache struct {
+type UserCache interface {
+	SetUserCache(ctx context.Context, id int64, data *model.UserModel, duration time.Duration) error
+	GetUserCache(ctx context.Context, id int64) (ret *model.UserModel, err error)
+	MultiGetUserCache(ctx context.Context, ids []int64) (map[string]*model.UserModel, error)
+	MultiSetUserCache(ctx context.Context, data []*model.UserModel, duration time.Duration) error
+	DelUserCache(ctx context.Context, id int64) error
+}
+
+// userCache define a cache struct
+type userCache struct {
 	cache cache.Cache
 }
 
 // NewUserCache new a cache
-func NewUserCache() *UserCache {
+func NewUserCache(rdb *redis.Client) UserCache {
 	jsonEncoding := encoding.JSONEncoding{}
 	cachePrefix := ""
-	return &UserCache{
-		cache: cache.NewRedisCache(redis.RedisClient, cachePrefix, jsonEncoding, func() interface{} {
+	return &userCache{
+		cache: cache.NewRedisCache(rdb, cachePrefix, jsonEncoding, func() interface{} {
 			return &model.UserModel{}
 		}),
 	}
 }
 
 // GetUserCacheKey get cache key
-func (c *UserCache) GetUserCacheKey(id int64) string {
+func (c *userCache) GetUserCacheKey(id int64) string {
 	return fmt.Sprintf(PrefixUserCacheKey, id)
 }
 
 // SetUserCache write to cache
-func (c *UserCache) SetUserCache(ctx context.Context, id int64, data *model.UserModel, duration time.Duration) error {
+func (c *userCache) SetUserCache(ctx context.Context, id int64, data *model.UserModel, duration time.Duration) error {
 	if data == nil || id == 0 {
 		return nil
 	}
@@ -53,7 +61,7 @@ func (c *UserCache) SetUserCache(ctx context.Context, id int64, data *model.User
 }
 
 // GetUserCache 获取cache
-func (c *UserCache) GetUserCache(ctx context.Context, id int64) (ret *model.UserModel, err error) {
+func (c *userCache) GetUserCache(ctx context.Context, id int64) (ret *model.UserModel, err error) {
 	var data *model.UserModel
 	cacheKey := c.GetUserCacheKey(id)
 	err = c.cache.Get(ctx, cacheKey, &data)
@@ -65,7 +73,7 @@ func (c *UserCache) GetUserCache(ctx context.Context, id int64) (ret *model.User
 }
 
 // MultiGetUserCache 批量获取cache
-func (c *UserCache) MultiGetUserCache(ctx context.Context, ids []int64) (map[string]*model.UserModel, error) {
+func (c *userCache) MultiGetUserCache(ctx context.Context, ids []int64) (map[string]*model.UserModel, error) {
 	var keys []string
 	for _, v := range ids {
 		cacheKey := c.GetUserCacheKey(v)
@@ -82,7 +90,7 @@ func (c *UserCache) MultiGetUserCache(ctx context.Context, ids []int64) (map[str
 }
 
 // MultiSetUserCache 批量设置cache
-func (c *UserCache) MultiSetUserCache(ctx context.Context, data []*model.UserModel, duration time.Duration) error {
+func (c *userCache) MultiSetUserCache(ctx context.Context, data []*model.UserModel, duration time.Duration) error {
 	valMap := make(map[string]interface{})
 	for _, v := range data {
 		cacheKey := c.GetUserCacheKey(v.ID)
@@ -97,7 +105,7 @@ func (c *UserCache) MultiSetUserCache(ctx context.Context, data []*model.UserMod
 }
 
 // DelUserCache 删除cache
-func (c *UserCache) DelUserCache(ctx context.Context, id int64) error {
+func (c *userCache) DelUserCache(ctx context.Context, id int64) error {
 	cacheKey := c.GetUserCacheKey(id)
 	err := c.cache.Del(ctx, cacheKey)
 	if err != nil {
@@ -107,7 +115,7 @@ func (c *UserCache) DelUserCache(ctx context.Context, id int64) error {
 }
 
 // DelUserCache set empty cache
-func (c *UserCache) SetCacheWithNotFound(ctx context.Context, id int64) error {
+func (c *userCache) SetCacheWithNotFound(ctx context.Context, id int64) error {
 	cacheKey := c.GetUserCacheKey(id)
 	err := c.cache.SetCacheWithNotFound(ctx, cacheKey)
 	if err != nil {

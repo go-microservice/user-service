@@ -41,11 +41,11 @@ type UserRepo interface {
 type userRepo struct {
 	db     *gorm.DB
 	tracer trace.Tracer
-	cache  *cache.UserCache
+	cache  cache.UserCache
 }
 
 // NewUser new a repository and return
-func NewUser(db *gorm.DB, cache *cache.UserCache) UserRepo {
+func NewUser(db *gorm.DB, cache cache.UserCache) UserRepo {
 	return &userRepo{
 		db:     db,
 		tracer: otel.Tracer("userRepo"),
