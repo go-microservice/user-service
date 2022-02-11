@@ -8,7 +8,7 @@ import (
 )
 
 // ProviderSet is repo providers.
-var ProviderSet = wire.NewSet(NewGORMClient, NewUserBase, NewUserProfile)
+var ProviderSet = wire.NewSet(NewGORMClient, NewUser)
 
 func NewGORMClient() *gorm.DB {
 	return model.GetDB()
