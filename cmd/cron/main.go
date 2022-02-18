@@ -1,47 +1,62 @@
 package main
 
 import (
+	"log"
 	"time"
 
-	"github.com/robfig/cron/v3"
+	"github.com/go-microservice/user-service/internal/task"
 
-	"github.com/go-eagle/eagle/pkg/log"
+	"github.com/hibiken/asynq"
 )
 
-// Run 计划任务
-// see: https://mp.weixin.qq.com/s/Ak7RBv1NuS-VBeDNo8_fww
-//
-// cron 内置3个用得比较多的JobWrapper：
-//
-// Recover：捕获内部Job产生的 panic；
-// DelayIfStillRunning：触发时，如果上一次任务还未执行完成（耗时太长），则等待上一次任务完成之后再执行；
-// SkipIfStillRunning：触发时，如果上一次任务还未完成，则跳过此次执行。
+const redisAddr = "127.0.0.1:6379"
+
+func init() {
+	task.Init()
+}
+
 func main() {
-	c := cron.New()
-	// support to second
-	// c = cron.New(cron.WithSeconds())
-	// demo
-	_, err := c.AddFunc("* */5 * * *", func() {
-		log.Infof("test cron, time: %d ", time.Now().Unix())
-	})
-	if err != nil {
-		log.Warnf("cron AddFunc err, %+v", err)
-		return
+	// run worker server
+	go func() {
+		srv := asynq.NewServer(
+			asynq.RedisClientOpt{Addr: redisAddr},
+			asynq.Config{
+				// Specify how many concurrent workers to use
+				Concurrency: 10,
+				// Optionally specify multiple queues with different priority.
+				Queues: map[string]int{
+					"critical": 6,
+					"default":  3,
+					"low":      1,
+				},
+				// See the godoc for other configuration options
+			},
+		)
+
+		// mux maps a type to a handler
+		mux := asynq.NewServeMux()
+		// register handlers...
+		mux.HandleFunc(task.TypeEmailWelcome, task.HandleEmailWelcomeTask)
+		//mux.Handle(task.TypeImageResize, task.NewImageProcessor())
+
+		if err := srv.Run(mux); err != nil {
+			log.Fatalf("could not run server: %v", err)
+		}
+	}()
+
+	// run schedule server
+	scheduler := asynq.NewScheduler(
+		asynq.RedisClientOpt{Addr: redisAddr},
+		&asynq.SchedulerOpts{Location: time.Local},
+	)
+
+	t, _ := task.NewEmailWelcomeTask(555)
+	if _, err := scheduler.Register("@every 5s", t); err != nil {
+		log.Fatal(err)
 	}
 
-	// test recover
-	//_, _ = c.AddJob("@every 1s", cron.NewChain(cron.Recover(cron.DefaultLogger)).Then(&example.PanicJob{}))
-
-	// test DelayIfStillRunning
-	//_, _ = c.AddJob("@every 1s", cron.NewChain(cron.DelayIfStillRunning(cron.DefaultLogger)).Then(&example.DelayJob{}))
-
-	// test SkipIfStillRunning
-	//_, _ = c.AddJob("@every 1s", cron.NewChain(cron.SkipIfStillRunning(cron.DefaultLogger)).Then(&example.SkipJob{}))
-
-	// 执行具体的任务
-	// _, _ = c.AddJob("@every 3s", example.GreetingJob{"dj"})
-
-	a := make(chan struct{})
-	c.Start()
-	<-a
+	// Run blocks and waits for os signal to terminate the program.
+	if err := scheduler.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
