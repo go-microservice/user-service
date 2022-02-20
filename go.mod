@@ -6,16 +6,14 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/gin-gonic/gin v1.7.2
-	github.com/go-eagle/eagle v1.4.1-0.20220212135746-5819a33442b6
-	github.com/go-redis/redis/v7 v7.4.0 // indirect
+	github.com/go-eagle/eagle v1.4.1-0.20220220043300-d55d46563bfb
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
-	github.com/hibiken/asynq v0.21.0 // indirect
+	github.com/hibiken/asynq v0.22.0
 	github.com/jinzhu/copier v0.3.4
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/afero v1.8.1 // indirect
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/pflag v1.0.5

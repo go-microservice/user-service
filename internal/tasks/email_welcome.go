@@ -1,4 +1,4 @@
-package task
+package tasks
 
 import (
 	"context"
@@ -9,8 +9,12 @@ import (
 	"github.com/hibiken/asynq"
 )
 
+const (
+	TypeEmailWelcome = "email:welcome"
+)
+
 type EmailWelcomePayload struct {
-	UserID int
+	Username string
 }
 
 //----------------------------------------------
@@ -18,8 +22,8 @@ type EmailWelcomePayload struct {
 // A task consists of a type and a payload.
 //----------------------------------------------
 
-func NewEmailWelcomeTask(userID int) (*asynq.Task, error) {
-	payload, err := json.Marshal(EmailWelcomePayload{UserID: userID})
+func NewEmailWelcomeTask(username string) (*asynq.Task, error) {
+	payload, err := json.Marshal(EmailWelcomePayload{Username: username})
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +43,7 @@ func HandleEmailWelcomeTask(ctx context.Context, t *asynq.Task) error {
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
 		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
-	log.Printf("Sending Email to User: user_id=%d", p.UserID)
+	log.Printf("Sending Email to User: username=%s", p.Username)
 	// Email delivery code ...
 	return nil
 }

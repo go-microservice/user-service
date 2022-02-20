@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-microservice/user-service/internal/tasks"
+
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
 	"github.com/go-eagle/eagle/pkg/errcode"
@@ -73,6 +75,12 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
 		})).Status(req).Err()
+	}
+
+	// send welcome email
+	task, err := tasks.NewEmailWelcomeTask(user.Username)
+	if err == nil {
+		_, _ = tasks.GetClient().Enqueue(task)
 	}
 
 	return &pb.RegisterReply{
