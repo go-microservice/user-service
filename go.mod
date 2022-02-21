@@ -6,7 +6,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/gin-gonic/gin v1.7.2
-	github.com/go-eagle/eagle v1.4.1-0.20220220043300-d55d46563bfb
+	github.com/go-eagle/eagle v1.4.1-0.20220221110722-f3d692e7a189
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
