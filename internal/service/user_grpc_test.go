@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/test/bufconn"
 
-	pb "github.com/go-microservice/user-service/api/micro/user/v1"
+	pb "github.com/go-microservice/user-service/api/user/v1"
 )
 
 const (

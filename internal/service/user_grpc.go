@@ -10,7 +10,7 @@ import (
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
 	"github.com/go-eagle/eagle/pkg/errcode"
-	pb "github.com/go-microservice/user-service/api/micro/user/v1"
+	pb "github.com/go-microservice/user-service/api/user/v1"
 	"github.com/go-microservice/user-service/internal/ecode"
 	"github.com/go-microservice/user-service/internal/model"
 	"github.com/go-microservice/user-service/internal/repository"

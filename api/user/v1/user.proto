@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package micro.user.v1;
+package user.v1;
 
-option go_package = "github.com/go-microservice/user-service/api/micro/user/v1;v1";
+option go_package = "github.com/go-microservice/user-service/api/user/v1;v1";
 
 service UserService {
   // auth

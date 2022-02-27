@@ -23,8 +23,9 @@
 
 有两种方式可以生成:
 
-1. `make grpc`
-2. `eagle proto client api/user/v1/user.proto`
+ `make grpc`
+或
+ `eagle proto client api/user/v1/user.proto`
 
 都会生成两个文件 `api/user/v1/user.pb.go` 和 `api/user/v1/user_grpc.pb.go`
 
@@ -44,7 +45,7 @@
 
 ### 6. 将业务注册到gRPC server 中
 
-在 `internal/server/grpc.go` 中新增 `v1.RegisterUserServer(grpcServer, service.NewUserService())`
+在 `internal/server/grpc.go` 中新增 `v1.RegisterUserServiceServer(grpcServer, service.NewUserService())`
 
 ## 运行
 
@@ -56,16 +57,18 @@ grpc即可正常启动
 
 ## 调试
 
-安装 grpcurl
+### 安装 grpcurl
 
 ```bash
 go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 ```
 
+### 返回结果
+
 正常返回
 
 ```bash
- ➜  ~ grpcurl -plaintext -d '{"email":"12345678@cc.com","username":"admin8","password":"123456"}' localhost:9090 micro.user.v1.UserService/Register
+ ➜  ~ grpcurl -plaintext -d '{"email":"12345678@cc.com","username":"admin8","password":"123456"}' localhost:9090 user.v1.UserService/Register
  {
    "username": "admin8"
  }
@@ -74,7 +77,7 @@ go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 异常返回
 
 ```bash
- ➜  ~ grpcurl -plaintext -d '{"email":"1234567@cc.com","username":"admin7","password":"123456"}' localhost:9090 micro.user.v1.UserService/Register
+ ➜  ~ grpcurl -plaintext -d '{"email":"1234567@cc.com","username":"admin7","password":"123456"}' localhost:9090 user.v1.UserService/Register
  ERROR:
    Code: Code(20100)
    Message: The user already exists.
