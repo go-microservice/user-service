@@ -63,28 +63,16 @@ prepare-lint:
 
 .PHONY: test
 # make test
-test: test-case vet
-	@go test -short ${PKG_LIST}
-
-.PHONY: test-case
-# make test-case
-test-case:
-	@go test -cover ./... | grep -v vendor;true
-
-.PHONY: vet
-# make vet
-vet:
+test:
+	go test -cover ./... | grep -v vendor;true
 	go vet ./... | grep -v vendor;true
+	go test -short ${PKG_LIST}
 
 .PHONY: cover
 # make cover
-cover: gen-coverage
-	@go tool cover -html=coverage.txt
-
-.PHONY: gen-coverage
-# make gen-coverage
-gen-coverage:
-	@go test -short -coverprofile coverage.txt -covermode=atomic ${PKG_LIST}
+cover:
+	go test -short -coverprofile coverage.txt -covermode=atomic ${PKG_LIST}
+	go tool cover -html=coverage.txt
 
 .PHONY: docker
 # make docker  生成docker镜像
