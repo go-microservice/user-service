@@ -4,9 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-microservice/user-service/internal/mocks"
 	"github.com/go-microservice/user-service/internal/model"
-
-	mock_cache "github.com/go-microservice/user-service/internal/mock/cache"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
@@ -19,7 +18,7 @@ var (
 )
 
 func setup() {
-	// mock db
+	// mocks db
 	sqlDB, _, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -53,7 +52,7 @@ func Test_userRepo_GetUser(t *testing.T) {
 	ctx := context.Background()
 	id = 1
 
-	mockCache := mock_cache.NewMockUserCache(ctl)
+	mockCache := mocks.NewMockUserCache(ctl)
 	gomock.InOrder(
 		mockCache.EXPECT().GetUserCache(ctx, id).Return(&model.UserModel{ID: 1}, nil).Times(1),
 	)

@@ -1,5 +1,7 @@
 package cache
 
+//go:generate mockgen -source=user_cache.go -destination=../../internal/mock/user_cache_mock.go  -package mock
+
 import (
 	"context"
 	"fmt"
