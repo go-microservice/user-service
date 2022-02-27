@@ -1,4 +1,13 @@
-# account service
+# user service
+
+## feature
+
+- 注册
+- 登录
+- 获取用户信息
+- 批量获取用户信息
+- 更新用户信息
+- 更新用户密码
 
 ## 开发流程
 
@@ -44,3 +53,31 @@
 `go run main.go`
 
 grpc即可正常启动
+
+## 调试
+
+安装 grpcurl
+
+```bash
+go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+```
+
+正常返回
+
+```bash
+ ➜  ~ grpcurl -plaintext -d '{"email":"12345678@cc.com","username":"admin8","password":"123456"}' localhost:9090 micro.user.v1.UserService/Register
+ {
+   "username": "admin8"
+ }
+```
+
+异常返回
+
+```bash
+ ➜  ~ grpcurl -plaintext -d '{"email":"1234567@cc.com","username":"admin7","password":"123456"}' localhost:9090 micro.user.v1.UserService/Register
+ ERROR:
+   Code: Code(20100)
+   Message: The user already exists.
+   Details:
+   1)	{"@type":"type.googleapis.com/micro.user.v1.RegisterRequest","email":"1234567@cc.com","password":"123456","username":"admin7"}
+```
