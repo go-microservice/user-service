@@ -22,7 +22,7 @@ import (
 // Injectors from wire.go:
 
 func InitApp(cfg *app.Config, config *app.ServerConfig) (*app.App, error) {
-	db := model.Init()
+	db := model.GetDB()
 	client := redis.Init()
 	userCache := cache.NewUserCache(client)
 	userRepo := repository.NewUser(db, userCache)

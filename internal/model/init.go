@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sync"
 
 	"gorm.io/gorm"
 
@@ -13,9 +14,9 @@ var (
 	ErrRecordNotFound = gorm.ErrRecordNotFound
 )
 
-// DB 数据库全局变量
 var (
-	DB *gorm.DB
+	DB   *gorm.DB
+	Once sync.Once
 )
 
 // Init 初始化数据库
@@ -31,6 +32,9 @@ func Init() *gorm.DB {
 
 // GetDB 返回默认的数据库
 func GetDB() *gorm.DB {
+	Once.Do(func() {
+		DB = Init()
+	})
 	return DB
 }
 
