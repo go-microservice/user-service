@@ -18,5 +18,6 @@ HTTP:
   WriteTimeout: 3s
 GRPC:
   Addr: :9090
+  Timeout: 3s
   ReadTimeout: 5s
   WriteTimeout: 5s
