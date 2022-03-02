@@ -5,6 +5,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-microservice/user-service/internal/cache"
+
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/go-microservice/user-service/internal/tasks"
 
 	"github.com/go-eagle/eagle/pkg/app"
@@ -99,7 +103,7 @@ func newUser(username, email, password string) (*model.UserModel, error) {
 }
 
 func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginReply, error) {
-	if req.Email == "" && req.Username == "" {
+	if len(req.Email) == 0 && len(req.Username) == 0 {
 		return nil, ecode.ErrInvalidArgument.Status(req).Err()
 	}
 
@@ -116,7 +120,7 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 			})).Status(req).Err()
 		}
 	}
-	if user == nil && req.Username != "" {
+	if user == nil && len(req.Username) > 0 {
 		user, err = s.repo.GetUserByUsername(ctx, req.Username)
 		if err != nil {
 			return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
@@ -134,14 +138,43 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 
 	// Sign the json web token.
 	payload := map[string]interface{}{"user_id": user.ID, "username": user.Username}
-	token, err := app.Sign(ctx, payload, app.Conf.JwtSecret, 86400)
+	token, err := app.Sign(ctx, payload, app.Conf.JwtSecret, int64(cache.UserTokenExpireTime))
+	if err != nil {
+		return nil, ecode.ErrToken.Status(req).Err()
+	}
+
+	// record token to redis
+	err = cache.NewUserTokenCache().SetUserTokenCache(ctx, user.ID, token, cache.UserTokenExpireTime)
 	if err != nil {
 		return nil, ecode.ErrToken.Status(req).Err()
 	}
 
 	return &pb.LoginReply{
+		Id:    user.ID,
 		Token: token,
 	}, nil
+}
+
+func (s *UserServiceServer) Logout(ctx context.Context, req *pb.LogoutRequest) (*emptypb.Empty, error) {
+	c := cache.NewUserTokenCache()
+	// check token
+	token, err := c.GetUserTokenCache(ctx, req.Id)
+	if err != nil {
+		return nil, ecode.ErrToken.Status(req).Err()
+	}
+	if token != req.Token {
+		return nil, ecode.ErrAccessDenied.Status(req).Err()
+	}
+
+	// delete token from cache
+	err = c.DelUserTokenCache(ctx, req.GetId())
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+
+	return nil, nil
 }
 
 func (s *UserServiceServer) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {

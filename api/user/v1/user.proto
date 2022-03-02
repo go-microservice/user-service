@@ -2,12 +2,15 @@ syntax = "proto3";
 
 package user.v1;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/go-microservice/user-service/api/user/v1;v1";
 
 service UserService {
   // auth
   rpc Register(RegisterRequest) returns (RegisterReply) {}
   rpc Login(LoginRequest) returns (LoginReply) {}
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {}
 
   // user
   rpc CreateUser(CreateUserRequest) returns(CreateUserReply) {}
@@ -64,7 +67,13 @@ message LoginRequest {
 }
 
 message LoginReply {
-  string token = 1;
+  int64 id = 1;
+  string token = 2;
+}
+
+message LogoutRequest {
+  int64 id = 1;
+  string token = 2;
 }
 
 message CreateUserRequest {
