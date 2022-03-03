@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/spf13/cast"
+
 	"github.com/go-eagle/eagle/pkg/cache"
 	"github.com/go-eagle/eagle/pkg/encoding"
 	"github.com/go-eagle/eagle/pkg/log"
@@ -83,10 +85,18 @@ func (c *userCache) MultiGetUserCache(ctx context.Context, ids []int64) (map[str
 	}
 
 	// NOTE: 需要在这里make实例化，如果在返回参数里直接定义会报 nil map
-	retMap := make(map[string]*model.UserModel)
-	err := c.cache.MultiGet(ctx, keys, retMap)
+	itemMap := make(map[string]*model.UserModel)
+	err := c.cache.MultiGet(ctx, keys, itemMap)
 	if err != nil {
 		return nil, err
+	}
+
+	retMap := make(map[string]*model.UserModel)
+	for _, v := range ids {
+		val, ok := itemMap[c.GetUserCacheKey(v)]
+		if ok {
+			retMap[cast.ToString(v)] = val
+		}
 	}
 	return retMap, nil
 }

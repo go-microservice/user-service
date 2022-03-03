@@ -140,7 +140,6 @@ func (r *userRepo) GetUserByPhone(ctx context.Context, phone string) (ret *model
 
 // BatchGetUser batch get items by primary id
 func (r *userRepo) BatchGetUser(ctx context.Context, ids []int64) (ret []*model.UserModel, err error) {
-	idsStr := cast.ToStringSlice(ids)
 	itemMap, err := r.cache.MultiGetUserCache(ctx, ids)
 	if err != nil {
 		return nil, err
@@ -157,7 +156,8 @@ func (r *userRepo) BatchGetUser(ctx context.Context, ids []int64) (ret []*model.
 	// get missed data
 	if len(missedID) > 0 {
 		var missedData []*model.UserModel
-		_sql := fmt.Sprintf(_batchGetUserSQL, _tableUserName, strings.Join(idsStr, ","))
+		missedIDStr := cast.ToStringSlice(missedID)
+		_sql := fmt.Sprintf(_batchGetUserSQL, _tableUserName, strings.Join(missedIDStr, ","))
 		err = r.db.WithContext(ctx).Raw(_sql).Scan(&missedData).Error
 		if err != nil {
 			// you can degrade to ignore error
