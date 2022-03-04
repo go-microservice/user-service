@@ -28,6 +28,7 @@ type UserCache interface {
 	MultiGetUserCache(ctx context.Context, ids []int64) (map[string]*model.UserModel, error)
 	MultiSetUserCache(ctx context.Context, data []*model.UserModel, duration time.Duration) error
 	DelUserCache(ctx context.Context, id int64) error
+	SetCacheWithNotFound(ctx context.Context, id int64) error
 }
 
 // userCache define a cache struct
