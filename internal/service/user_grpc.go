@@ -237,6 +237,11 @@ func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePa
 func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
 	user, err := s.repo.GetUser(ctx, req.Id)
 	if err != nil {
+		if errors.Is(err, model.ErrRecordNotFound) {
+			return nil, ecode.ErrNotFound.WithDetails(errcode.NewDetails(map[string]interface{}{
+				"msg": err.Error(),
+			})).Status(req).Err()
+		}
 		return nil, err
 	}
 	u, err := convertUser(user)
