@@ -53,7 +53,7 @@ func (c *userTokenCache) SetUserTokenCache(ctx context.Context, id int64, token 
 		return nil
 	}
 	cacheKey := c.GetUserTokenCacheKey(id)
-	err := c.cache.Set(ctx, cacheKey, token, duration)
+	err := c.cache.Set(ctx, cacheKey, &token, duration)
 	if err != nil {
 		return err
 	}
