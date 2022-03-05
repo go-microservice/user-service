@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/go-microservice/user-service/internal/cache"
@@ -146,7 +145,6 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 
 	// record token to redis
 	err = cache.NewUserTokenCache().SetUserTokenCache(ctx, user.ID, token, cache.UserTokenExpireTime)
-	fmt.Println("~~~~~~~~~~~~~", err)
 	if err != nil {
 		return nil, ecode.ErrToken.Status(req).Err()
 	}
