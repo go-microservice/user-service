@@ -6,10 +6,14 @@ import (
 	"strings"
 	"time"
 
+	cacheBase "github.com/go-eagle/eagle/pkg/cache"
+	"github.com/go-eagle/eagle/pkg/redis"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/sync/singleflight"
 	"gorm.io/gorm"
 
 	"github.com/go-microservice/user-service/internal/cache"
@@ -23,6 +27,10 @@ var (
 	_getUserByEmailSQL    = "SELECT * FROM %s WHERE email = ?"
 	_getUserByPhoneSQL    = "SELECT * FROM %s WHERE phone = ?"
 	_batchGetUserSQL      = "SELECT * FROM %s WHERE id IN (%s)"
+)
+
+var (
+	g singleflight.Group
 )
 
 var _ UserRepo = (*userRepo)(nil)
@@ -83,29 +91,52 @@ func (r *userRepo) UpdateUser(ctx context.Context, id int64, data *model.UserMod
 // GetUser get a record by primary id
 func (r *userRepo) GetUser(ctx context.Context, id int64) (ret *model.UserModel, err error) {
 	// read cache
-	item, err := r.cache.GetUserCache(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if item != nil {
-		return item, nil
-	}
+	ret, err = r.cache.GetUserCache(ctx, id)
+	if errors.Is(err, cacheBase.ErrPlaceholder) {
+		return nil, model.ErrRecordNotFound
+	} else if errors.Is(err, redis.ErrRedisNotFound) {
+		// use sync/singleflight mode to get data
+		// demo see: https://github.com/go-demo/singleflight-demo/blob/master/main.go
+		// https://juejin.cn/post/6844904084445593613
+		key := fmt.Sprintf("sf_get_user_%d", id)
+		val, err, _ := g.Do(key, func() (interface{}, error) {
+			data := new(model.UserModel)
+			// get data from database
+			err = r.db.WithContext(ctx).First(data, id).Error
+			// if data is empty, set not found cache to prevent cache penetration(缓存穿透)
+			if errors.Is(err, model.ErrRecordNotFound) {
+				err = r.cache.SetCacheWithNotFound(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				return nil, model.ErrRecordNotFound
+			} else if err != nil {
+				return nil, errors.Wrapf(err, "[repo.user] query db err")
+			}
 
-	// write cache
-	data := new(model.UserModel)
-	err = r.db.WithContext(ctx).Raw(fmt.Sprintf(_getUserSQL, _tableUserName), id).Scan(&data).Error
-	if err != nil && err != model.ErrRecordNotFound {
-		return nil, err
-	}
-
-	if data.ID > 0 {
-		err = r.cache.SetUserCache(ctx, id, data, 5*time.Minute)
+			// set cache
+			if data.ID > 0 {
+				err = r.cache.SetUserCache(ctx, id, data, cacheBase.DefaultExpireTime)
+				if err != nil {
+					return nil, errors.Wrap(err, "[repo.user] SetUserBaseCache err")
+				}
+				return data, nil
+			}
+			return nil, model.ErrRecordNotFound
+		})
 		if err != nil {
 			return nil, err
 		}
+		if val != nil {
+			ret = val.(*model.UserModel)
+			return ret, nil
+		}
+	} else if err != nil {
+		// fail fast, if cache error return, don't request to db
+		return nil, err
 	}
 
-	return data, nil
+	return ret, nil
 }
 
 func (r *userRepo) GetUserByUsername(ctx context.Context, username string) (ret *model.UserModel, err error) {
@@ -160,14 +191,12 @@ func (r *userRepo) BatchGetUser(ctx context.Context, ids []int64) (ret []*model.
 		_sql := fmt.Sprintf(_batchGetUserSQL, _tableUserName, strings.Join(missedIDStr, ","))
 		err = r.db.WithContext(ctx).Raw(_sql).Scan(&missedData).Error
 		if err != nil {
-			// you can degrade to ignore error
 			return nil, err
 		}
 		if len(missedData) > 0 {
 			ret = append(ret, missedData...)
 			err = r.cache.MultiSetUserCache(ctx, missedData, 5*time.Minute)
 			if err != nil {
-				// you can degrade to ignore error
 				return nil, err
 			}
 		}

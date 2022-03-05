@@ -288,6 +288,9 @@ func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetU
 }
 
 func convertUser(u *model.UserModel) (*pb.User, error) {
+	if u == nil {
+		return nil, nil
+	}
 	user := &types.User{
 		Id:        u.ID,
 		Username:  u.Username,
