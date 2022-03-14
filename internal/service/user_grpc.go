@@ -174,7 +174,8 @@ func (s *UserServiceServer) Logout(ctx context.Context, req *pb.LogoutRequest) (
 		})).Status(req).Err()
 	}
 
-	return nil, nil
+	// NOTE: don't set to nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserServiceServer) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
