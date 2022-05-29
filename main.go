@@ -24,6 +24,7 @@ import (
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
+	"github.com/go-eagle/eagle/pkg/registry"
 	"github.com/go-eagle/eagle/pkg/registry/etcd"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
 	v "github.com/go-eagle/eagle/pkg/version"
@@ -97,13 +98,6 @@ func main() {
 }
 
 func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
-	// create a etcd register
-	client, err := etcdclient.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	r := etcd.New(client.Client)
-
 	return eagle.New(
 		eagle.WithName(cfg.Name),
 		eagle.WithVersion(cfg.Version),
@@ -114,6 +108,15 @@ func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
 			// init gRPC server
 			gs,
 		),
-		eagle.WithRegistry(r),
+		eagle.WithRegistry(getRegistry()),
 	)
+}
+
+// create a etcd register
+func getRegistry() registry.Registry {
+	client, err := etcdclient.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return etcd.New(client.Client)
 }
