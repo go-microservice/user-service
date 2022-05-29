@@ -18,13 +18,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-eagle/eagle/pkg/transport/grpc"
-
 	"github.com/gin-gonic/gin"
 	eagle "github.com/go-eagle/eagle/pkg/app"
+	"github.com/go-eagle/eagle/pkg/client/etcdclient"
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
+	"github.com/go-eagle/eagle/pkg/registry/etcd"
+	"github.com/go-eagle/eagle/pkg/transport/grpc"
 	v "github.com/go-eagle/eagle/pkg/version"
 	"github.com/spf13/pflag"
 	_ "go.uber.org/automaxprocs"
@@ -96,6 +97,13 @@ func main() {
 }
 
 func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
+	// create a etcd register
+	client, err := etcdclient.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	r := etcd.New(client.Client)
+
 	return eagle.New(
 		eagle.WithName(cfg.Name),
 		eagle.WithVersion(cfg.Version),
@@ -106,5 +114,6 @@ func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
 			// init gRPC server
 			gs,
 		),
+		eagle.WithRegistry(r),
 	)
 }

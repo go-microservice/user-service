@@ -1,0 +1,11 @@
+etcd:
+  Endpoints:
+    - "127.0.0.1:2379"
+  ConnectTimeout: 5s
+  BasicAuth:
+  UserName:
+  Password:
+  Secure: false
+  AutoSyncInterval: 1s
+  TTL:
+consul:
