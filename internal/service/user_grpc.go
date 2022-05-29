@@ -255,6 +255,11 @@ func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest)
 	}, nil
 }
 func (s *UserServiceServer) BatchGetUsers(ctx context.Context, req *pb.BatchGetUsersRequest) (*pb.BatchGetUsersReply, error) {
+	// check rpc request if canceled
+	if ctx.Err() == context.Canceled {
+		return nil, ecode.ErrCanceled.Status(req).Err()
+	}
+
 	if len(req.GetIds()) == 0 {
 		return nil, errors.New("ids is empty")
 	}

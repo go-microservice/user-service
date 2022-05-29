@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis/v2 v2.15.1
-	github.com/gin-gonic/gin v1.7.2
-	github.com/go-eagle/eagle v1.4.1-0.20220305034704-369d5658fd1e
+	github.com/gin-gonic/gin v1.7.3
+	github.com/go-eagle/eagle v1.4.1-0.20220529142348-95ea10350523
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0

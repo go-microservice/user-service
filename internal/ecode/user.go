@@ -12,6 +12,7 @@ var (
 	ErrInternalError   = errcode.New(codes.Internal, "Internal error")
 	ErrAccessDenied    = errcode.New(codes.PermissionDenied, "Access denied")
 	ErrNotFound        = errcode.New(codes.NotFound, "Not found")
+	ErrCanceled        = errcode.New(codes.Canceled, "RPC request is canceled")
 
 	// user grpc errors
 	ErrUserIsExist           = errcode.New(20100, "The user already exists.")

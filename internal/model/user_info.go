@@ -1,5 +1,11 @@
 package model
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
 // UserModel define a user base info struct.
 type UserModel struct {
 	ID        int64  `gorm:"primary_key;AUTO_INCREMENT;column:id" json:"id"`
@@ -21,4 +27,11 @@ type UserModel struct {
 // TableName 表名
 func (u *UserModel) TableName() string {
 	return "user_info"
+}
+
+func (u *UserModel) BeforeCreate(tx *gorm.DB) (err error) {
+	if u.Username == "admin" || u.Username == "root" || u.Username == "administrator" {
+		return errors.New("invalid name")
+	}
+	return
 }
