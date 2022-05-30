@@ -14,6 +14,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"log"
 	"net/http"
 	"os"
@@ -22,12 +23,14 @@ import (
 	eagle "github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/client/consulclient"
 	"github.com/go-eagle/eagle/pkg/client/etcdclient"
+	"github.com/go-eagle/eagle/pkg/client/nacosclient"
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
 	"github.com/go-eagle/eagle/pkg/redis"
 	"github.com/go-eagle/eagle/pkg/registry"
 	"github.com/go-eagle/eagle/pkg/registry/consul"
 	"github.com/go-eagle/eagle/pkg/registry/etcd"
+	"github.com/go-eagle/eagle/pkg/registry/nacos"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
 	v "github.com/go-eagle/eagle/pkg/version"
 	"github.com/spf13/pflag"
@@ -110,7 +113,7 @@ func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
 			// init gRPC server
 			gs,
 		),
-		eagle.WithRegistry(getConsulRegistry()),
+		eagle.WithRegistry(getNacosRegistry()),
 	)
 }
 
@@ -130,4 +133,13 @@ func getConsulRegistry() registry.Registry {
 		panic(err)
 	}
 	return consul.New(client)
+}
+
+// create a nacos register
+func getNacosRegistry() registry.Registry {
+	client, err := nacosclient.New()
+	if err != nil {
+		panic(err)
+	}
+	return nacos.New(client)
 }
