@@ -13,7 +13,6 @@ consul:
   Scheme: http
   Datacenter:
   WaitTime: 5s
-  Namespace: default
 nacos:
   Addr: "127.0.0.1"
   Port: 8848
