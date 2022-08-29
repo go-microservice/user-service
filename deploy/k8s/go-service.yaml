@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-svc
+  labels:
+    app: user-service
+spec:
+  ports:
+    - port: 9001
+  type: ClusterIP
+  selector:
+    app: user-service
