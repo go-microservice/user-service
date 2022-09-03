@@ -239,15 +239,18 @@ func (s *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest)
 	user, err := s.repo.GetUser(ctx, req.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrRecordNotFound) {
-			return nil, ecode.ErrNotFound.WithDetails(errcode.NewDetails(map[string]interface{}{
-				"msg": err.Error(),
-			})).Status(req).Err()
+			return nil, ecode.ErrUserNotFound.Status(req).Err()
 		}
-		return nil, err
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
 	}
+
 	u, err := convertUser(user)
 	if err != nil {
-		return nil, err
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
 	}
 
 	return &pb.GetUserReply{
