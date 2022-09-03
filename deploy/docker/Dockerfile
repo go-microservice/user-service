@@ -9,8 +9,7 @@ RUN apk add --no-cache git make bash ca-certificates tzdata \
 
 RUN GRPC_HEALTH_PROBE_VERSION=v0.3.0 && \
     wget -qO/bin/grpc_health_probe \
-    https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/
-    ${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
+    https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
 
 # 镜像设置必要的环境变量
@@ -59,4 +58,6 @@ CMD ["/bin/user-service", "-c", "/data/conf/user-service/config"]
 # 1. build image: docker build -t user-service:v1.0.0 -f Dockerfile .
 # 2. start: docker run --rm -it -p 8080:8080 user-service:v1.0.0
 # 3. test: curl -i http://localhost:8080/health
+# 4. tag: docker tag user-service:v0.0.1 qloog/user-service:v0.0.1
+# 5. push tag: docker push qloog/user-service:v0.0.1
 
