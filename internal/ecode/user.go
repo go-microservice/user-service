@@ -8,10 +8,10 @@ import (
 //nolint: golint
 var (
 	// common errors
-	ErrInvalidArgument = errcode.New(codes.InvalidArgument, "Invalid argument")
-	ErrInternalError   = errcode.New(codes.Internal, "Internal error")
-	ErrAccessDenied    = errcode.New(codes.PermissionDenied, "Access denied")
-	ErrNotFound        = errcode.New(codes.NotFound, "Not found")
+	ErrInternalError   = errcode.New(10000, "Internal error")
+	ErrInvalidArgument = errcode.New(10001, "Invalid argument")
+	ErrNotFound        = errcode.New(10003, "Not found")
+	ErrAccessDenied    = errcode.New(10006, "Access denied")
 	ErrCanceled        = errcode.New(codes.Canceled, "RPC request is canceled")
 
 	// user grpc errors
