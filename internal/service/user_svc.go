@@ -230,7 +230,18 @@ func (s *UserServiceServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRe
 		})).Status(req).Err()
 	}
 
-	return &pb.UpdateUserReply{}, nil
+	return &pb.UpdateUserReply{
+		UserId:    req.UserId,
+		Nickname:  req.Nickname,
+		Phone:     req.Phone,
+		Email:     req.Email,
+		Avatar:    req.Avatar,
+		Gender:    req.Gender,
+		Birthday:  req.Birthday,
+		Bio:       req.Bio,
+		Status:    req.Status,
+		UpdatedAt: time.Now().Unix(),
+	}, nil
 }
 
 func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePasswordRequest) (*pb.UpdatePasswordReply, error) {
