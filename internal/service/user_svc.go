@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/spf13/cast"
+
 	"github.com/go-microservice/user-service/internal/cache"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -128,7 +130,7 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 			})).Status(req).Err()
 		}
 	}
-	if user != nil && user.ID == 0 {
+	if user == nil || user.ID == 0 {
 		return nil, ecode.ErrUserNotFound.Status(req).Err()
 	}
 
@@ -206,9 +208,19 @@ func (s *UserServiceServer) CreateUser(ctx context.Context, req *pb.CreateUserRe
 }
 
 func (s *UserServiceServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserReply, error) {
+	if req.UserId == 0 {
+		return nil, ecode.ErrInvalidArgument.Status(req).Err()
+	}
+
 	user := &model.UserModel{
-		Username:  req.Username,
+		Nickname:  req.Nickname,
+		Phone:     req.Phone,
 		Email:     req.Email,
+		Avatar:    req.Avatar,
+		Gender:    cast.ToString(req.Gender),
+		Birthday:  req.Birthday,
+		Bio:       req.Bio,
+		Status:    cast.ToInt32(req.Status),
 		UpdatedAt: time.Now().Unix(),
 	}
 	err := s.repo.UpdateUser(ctx, req.UserId, user)
@@ -222,11 +234,45 @@ func (s *UserServiceServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRe
 }
 
 func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePasswordRequest) (*pb.UpdatePasswordReply, error) {
-	user := &model.UserModel{
-		Password:  req.Password,
+	if len(req.Id) == 0 {
+		return nil, ecode.ErrInvalidArgument.Status(req).Err()
+	}
+	if len(req.OldPassword) == 0 || len(req.NewPassword) == 0 || len(req.ConfirmPassword) == 0 {
+		return nil, ecode.ErrInvalidArgument.Status(req).Err()
+	}
+	if req.NewPassword != req.ConfirmPassword {
+		return nil, ecode.ErrTwicePasswordNotMatch.Status(req).Err()
+	}
+
+	// get user base info
+	var (
+		user *model.UserModel
+		err  error
+	)
+	user, err = s.repo.GetUser(ctx, cast.ToInt64(req.Id))
+	if err != nil {
+		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+	if user == nil || user.ID == 0 {
+		return nil, ecode.ErrUserNotFound.Status(req).Err()
+	}
+
+	if !auth.ComparePasswords(user.Password, req.OldPassword) {
+		return nil, ecode.ErrPasswordIncorrect.Status(req).Err()
+	}
+
+	newPwd, err := auth.HashAndSalt(req.NewPassword)
+	if err != nil {
+		return nil, ecode.ErrEncrypt.Status(req).Err()
+	}
+
+	data := &model.UserModel{
+		Password:  newPwd,
 		UpdatedAt: time.Now().Unix(),
 	}
-	err := s.repo.UpdateUser(ctx, req.UserId, user)
+	err = s.repo.UpdateUser(ctx, user.ID, data)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
