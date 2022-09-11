@@ -45,15 +45,17 @@ WORKDIR /bin
 # 从builder镜像中把 /build 拷贝到当前目录
 COPY --from=builder /go/src/github.com/go-microservice/user-service          /bin/user-service
 COPY --from=builder /go/src/github.com/go-microservice/user-service/config   /data/conf/user-service/config
+COPY --from=builder /bin/grpc_health_probe 				     /bin/grpc_health_probe
 
 RUN mkdir -p /data/logs/
+RUN chmod +x /bin/user-service
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 EXPOSE 9090
 
 # 需要运行的命令
-CMD ["/bin/user-service", "-c", "/data/conf/user-service/config"]
+ENTRYPOINT ["/bin/user-service", "-c", "/data/conf/user-service/config"]
 
 # 1. build image: docker build -t user-service:v1.0.0 -f Dockerfile .
 # 2. start: docker run --rm -it -p 8080:8080 user-service:v1.0.0
