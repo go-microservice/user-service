@@ -10,7 +10,7 @@ import (
 type UserModel struct {
 	ID        int64  `gorm:"primary_key;AUTO_INCREMENT;column:id" json:"id"`
 	Username  string `gorm:"column:username" json:"username"`
-	Nickname  string `gorm:"column:username" json:"nickname"`
+	Nickname  string `gorm:"column:nickname" json:"nickname"`
 	Phone     string `gorm:"column:phone" json:"phone"`
 	Email     string `gorm:"column:email" json:"email"`
 	Password  string `gorm:"column:password" json:"password"`

@@ -104,12 +104,25 @@ message UpdateUserRequest {
 }
 
 message UpdateUserReply {
-
+  int64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string phone = 4;
+  int64  login_at = 5;
+  StatusType status = 6;
+  string nickname = 7;
+  string avatar = 8;
+  GenderType gender = 9;
+  string birthday = 10;
+  string bio = 11;
+  int64 updated_at = 13;
 }
 
 message UpdatePasswordRequest {
-  int64 user_id = 1;
-  string password = 2;
+  string id = 1;
+  string old_password = 2;
+  string new_password = 3;
+  string confirm_password = 4;
 }
 
 message UpdatePasswordReply {

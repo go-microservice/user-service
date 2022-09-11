@@ -77,6 +77,8 @@ func (r *userRepo) UpdateUser(ctx context.Context, id int64, data *model.UserMod
 	if err != nil {
 		return errors.Wrapf(err, "[repo] update User err: %v", err)
 	}
+	// 当使用 struct 更新时，默认情况下，GORM 只会更新非零值的字段
+	// see: https://gorm.io/zh_CN/docs/update.html#%E6%9B%B4%E6%96%B0%E5%A4%9A%E5%88%97
 	err = r.db.Model(&item).Updates(data).Error
 	if err != nil {
 		return err

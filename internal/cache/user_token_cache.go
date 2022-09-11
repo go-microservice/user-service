@@ -4,6 +4,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -64,7 +65,7 @@ func (c *userTokenCache) SetUserTokenCache(ctx context.Context, id int64, token 
 func (c *userTokenCache) GetUserTokenCache(ctx context.Context, id int64) (token string, err error) {
 	cacheKey := c.GetUserTokenCacheKey(id)
 	err = c.cache.Get(ctx, cacheKey, &token)
-	if err != nil {
+	if err != nil && !errors.Is(err, redis.ErrRedisNotFound) {
 		log.WithContext(ctx).Warnf("get err from redis, err: %+v", err)
 		return "", err
 	}
