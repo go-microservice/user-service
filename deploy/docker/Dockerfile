@@ -27,7 +27,6 @@ WORKDIR /go/src/github.com/go-microservice/user-service
 # 复制项目中的 go.mod 和 go.sum文件并下载依赖信息
 COPY go.mod .
 COPY go.sum .
-RUN go mod download
 
 # 将代码复制到容器中
 COPY . .
