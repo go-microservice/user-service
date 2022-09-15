@@ -21,7 +21,7 @@ spec:
     spec: # Pod里容器相关的定义
       containers:
         - name: user-service
-          image: qloog/user-service:v0.0.5
+          image: qloog/user-service:latest
           imagePullPolicy: Always
           resources:
             limits:
