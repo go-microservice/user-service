@@ -26,7 +26,6 @@ import (
 	"github.com/go-eagle/eagle/pkg/client/nacosclient"
 	"github.com/go-eagle/eagle/pkg/config"
 	logger "github.com/go-eagle/eagle/pkg/log"
-	"github.com/go-eagle/eagle/pkg/redis"
 	"github.com/go-eagle/eagle/pkg/registry"
 	"github.com/go-eagle/eagle/pkg/registry/consul"
 	"github.com/go-eagle/eagle/pkg/registry/etcd"
@@ -36,7 +35,6 @@ import (
 	"github.com/spf13/pflag"
 	_ "go.uber.org/automaxprocs"
 
-	"github.com/go-microservice/user-service/internal/model"
 	"github.com/go-microservice/user-service/internal/server"
 )
 
@@ -78,9 +76,9 @@ func main() {
 	// -------------- init resource -------------
 	logger.Init()
 	// init db
-	model.Init()
+	//model.Init()
 	// init redis
-	redis.Init()
+	//redis.Init()
 
 	gin.SetMode(cfg.Mode)
 
