@@ -79,6 +79,11 @@ cover:
 docker:
 	docker build -t eagle:$(versionDir) -f Dockeffile .
 
+.PHONY: deploy
+# make deploy  deploy app to k8s
+deploy:
+	sh deploy/deploy.sh
+
 .PHONY: clean
 # make clean
 clean:
