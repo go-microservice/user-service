@@ -5,7 +5,7 @@ metadata: # Deployment的元数据
   labels:
     app: user-service
 spec:
-  replicas: 3 # ReplicaSet部分的定义
+  replicas: 2 # ReplicaSet部分的定义
   selector:
     matchLabels:
       app: user-service
@@ -20,12 +20,13 @@ spec:
         app: user-service
     spec: # Pod里容器相关的定义
       containers:
-        - name: user-service-container
-          image: go-eagle/user-service:v1.0.0
+        - name: user-service
+          image: qloog/user-service:v0.0.10
+          imagePullPolicy: Always
           resources:
             limits:
-              memory: "128Mi"
-              cpu: "100m" # 0.1核，1000m = 1核心
+              memory: "256Mi"
+              cpu: "300m" # 0.3核，1000m = 1核心
           ports:
             - containerPort: 80
             - containerPort: 9090
