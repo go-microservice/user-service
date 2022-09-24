@@ -1,9 +1,6 @@
 package model
 
 import (
-	"fmt"
-	"sync"
-
 	"gorm.io/gorm"
 
 	"github.com/go-eagle/eagle/pkg/config"
@@ -15,27 +12,26 @@ var (
 )
 
 var (
-	DB   *gorm.DB
-	Once sync.Once
+	DB *gorm.DB
 )
 
 // Init 初始化数据库
-func Init() *gorm.DB {
+func Init() (*gorm.DB, func(), error) {
 	cfg, err := loadConf()
 	if err != nil {
-		panic(fmt.Sprintf("load orm conf err: %v", err))
+		return nil, nil, err
 	}
 
 	DB = orm.NewMySQL(cfg)
-	return DB
-}
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return nil, nil, err
+	}
+	cleanFunc := func() {
+		sqlDB.Close()
+	}
 
-// GetDB 返回默认的数据库
-func GetDB() *gorm.DB {
-	Once.Do(func() {
-		DB = Init()
-	})
-	return DB
+	return DB, cleanFunc, nil
 }
 
 // loadConf load gorm config

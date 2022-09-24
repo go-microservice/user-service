@@ -75,10 +75,6 @@ func main() {
 
 	// -------------- init resource -------------
 	logger.Init()
-	// init db
-	//model.Init()
-	// init redis
-	//redis.Init()
 
 	gin.SetMode(cfg.Mode)
 
@@ -91,7 +87,8 @@ func main() {
 	}()
 
 	// start app
-	app, err := InitApp(&cfg, &cfg.GRPC)
+	app, cleanup, err := InitApp(&cfg, &cfg.GRPC)
+	defer cleanup()
 	if err != nil {
 		panic(err)
 	}
