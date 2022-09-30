@@ -1,14 +1,19 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: user-ingress
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    # kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
-    - host: user-app.dev
+    - host: user-app.dev # 需要在host中进行绑定，ip为(minikube ip)
       http:
         paths:
-          - backend:
-              serviceName: user-service
-              servicePort: 9001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: user-svc
+                port:
+                  number: 9001
