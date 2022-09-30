@@ -33,14 +33,18 @@ COPY . .
 COPY config ./config
 
 # Build the Go app
-RUN make build
+#RUN make build
+RUN go build -o /go/bin/user-service
 
-# 创建一个小镜像
 # Final stage
 FROM debian:stretch-slim
 
+WORKDIR /bin
+
+ENV APP_ENV prod
+
 # 从builder镜像中把 /build 拷贝到当前目录
-COPY --from=builder /go/src/user-service          /bin/user-service
+COPY --from=builder /go/bin/user-service          /bin/user-service
 COPY --from=builder /go/src/user-service/config   /data/conf/user-service/config
 COPY --from=builder /go/bin/grpc_health_probe 	  /bin/grpc_health_probe
 
@@ -54,9 +58,9 @@ EXPOSE 9090
 # 需要运行的命令
 ENTRYPOINT ["/bin/user-service", "-c", "/data/conf/user-service/config"]
 
-# 1. build image: docker build -t user-service:v1.0.0 -f Dockerfile .
+# 1. build image: docker build -t qloog/user-service:v1.0.0 -f deploy/docker/Dockerfile .
 # 2. start: docker run --rm -it -p 8080:8080 user-service:v1.0.0
 # 3. test: curl -i http://localhost:8080/health
-# 4. tag: docker tag user-service:v0.0.1 qloog/user-service:v0.0.1
-# 5. push tag: docker push qloog/user-service:v0.0.1
+# 4. tag: docker tag user-service:v1.0.0 qloog/user-service:v1.0.0
+# 5. push tag: docker push qloog/user-service:v1.0.0
 

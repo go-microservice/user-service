@@ -6,7 +6,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - host: website-ingress.local
+    - host: user-app.dev
       http:
         paths:
           - backend:
