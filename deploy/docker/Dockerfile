@@ -1,4 +1,4 @@
-# Compile stage
+# Build stage
 FROM golang:1.16.5-alpine3.12 AS builder
 
 # The latest alpine images don't have some tools like (`git` and `bash`).
@@ -36,8 +36,8 @@ COPY config ./config
 #RUN make build
 RUN go build -o /go/bin/user-service
 
-# Final stage
-FROM debian:stretch-slim
+# Runtime stage
+FROM alpine:latest
 
 WORKDIR /bin
 
@@ -48,8 +48,11 @@ COPY --from=builder /go/bin/user-service          /bin/user-service
 COPY --from=builder /go/src/user-service/config   /data/conf/user-service/config
 COPY --from=builder /go/bin/grpc_health_probe 	  /bin/grpc_health_probe
 
-RUN mkdir -p  /data/logs/
-RUN chmod 777 /bin/user-service
+
+RUN apk update \
+ && apk add --no-cache curl jq \
+ && rm -rf /var/cache/apk/* \
+ && mkdir -p  /data/logs/
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
