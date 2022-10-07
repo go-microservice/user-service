@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata: # Deployment的元数据
-  name: user-service-deployment
+  name: user-service-dep
   labels:
     app: user-service
 spec:
-  replicas: 2 # ReplicaSet部分的定义
+  replicas: 1 # ReplicaSet部分的定义
   selector:
     matchLabels:
       app: user-service
@@ -21,14 +21,14 @@ spec:
     spec: # Pod里容器相关的定义
       containers:
         - name: user-service
-          image: qloog/user-service:v0.0.25
+          image: qloog/user-service:v0.0.29
           imagePullPolicy: Always
           resources:
             limits:
               memory: "256Mi"
               cpu: "300m" # 0.3核，1000m = 1核心
           ports:
-            - containerPort: 80
+            - containerPort: 8080
             - containerPort: 9090
           readinessProbe: # 就绪探针
             exec:

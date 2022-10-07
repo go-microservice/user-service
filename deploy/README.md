@@ -9,6 +9,20 @@ kubectl apply -f deploy/mysql/deployment-service.yaml
 # 部署redis
 kubectl apply -f deploy/redis/redis-config.yaml 
 kubectl apply -f deploy/redis/deployment-service.yaml
+
+# 部署应用
+kubectl apply -f deploy/k8s/go-deployment.yaml
+kubectl apply -f deploy/k8s/go-service.yaml
+kubectl apply -f deploy/k8s/go-inigress.yaml
+
+# 安装 Nginx Ingress Controller
+kubectl apply -f common/ns-and-sa.yaml
+kubectl apply -f rbac/rbac.yaml
+kubectl apply -f common/nginx-config.yaml
+kubectl apply -f common/default-server-secret.yaml
+
+# 查看 ingress 配置是否正常
+kubectl describe ing user-ingress
 ```
 
 ## 本地docker环境
