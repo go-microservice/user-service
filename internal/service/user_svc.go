@@ -76,7 +76,7 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
-	_, err = s.repo.CreateUser(ctx, user)
+	uid, err := s.repo.CreateUser(ctx, user)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),
@@ -84,12 +84,13 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	}
 
 	// send welcome email
-	task, err := tasks.NewEmailWelcomeTask(user.Username)
-	if err == nil {
-		_, _ = tasks.GetClient().Enqueue(task)
-	}
+	_, err = tasks.NewEmailWelcomeTask(user.Username)
+	//if err == nil {
+	//	_, _ = tasks.GetClient().Enqueue(task)
+	//}
 
 	return &pb.RegisterReply{
+		Id:       uid,
 		Username: req.Username,
 	}, nil
 }
