@@ -1,3 +1,3 @@
-ServiceName: "eagle"
-LocalAgentHostPort: "127.0.0.1:6831"
-CollectorEndpoint: "http://localhost:14268/api/traces"
+ServiceName: "user-svc"
+LocalAgentHostPort: "192.168.31.178:6831"
+CollectorEndpoint: "http://192.168.31.178:14268/api/traces"

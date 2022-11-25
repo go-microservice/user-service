@@ -14,7 +14,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
 	"log"
 	"net/http"
 	"os"
@@ -30,6 +29,7 @@ import (
 	"github.com/go-eagle/eagle/pkg/registry/consul"
 	"github.com/go-eagle/eagle/pkg/registry/etcd"
 	"github.com/go-eagle/eagle/pkg/registry/nacos"
+	"github.com/go-eagle/eagle/pkg/trace"
 	"github.com/go-eagle/eagle/pkg/transport/grpc"
 	v "github.com/go-eagle/eagle/pkg/version"
 	"github.com/spf13/pflag"
@@ -78,6 +78,15 @@ func main() {
 
 	gin.SetMode(cfg.Mode)
 
+	if cfg.EnableTrace {
+		var traceCfg trace.Config
+		err := config.Load("trace", &traceCfg)
+		_, err = trace.InitTracerProvider(traceCfg.ServiceName, traceCfg.CollectorEndpoint)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	// init pprof server
 	go func() {
 		fmt.Printf("Listening and serving PProf HTTP on %s\n", cfg.PprofPort)
@@ -108,7 +117,7 @@ func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
 			// init gRPC server
 			gs,
 		),
-		// eagle.WithRegistry(getConsulRegistry()),
+		eagle.WithRegistry(getConsulRegistry()),
 	)
 }
 

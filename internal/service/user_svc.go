@@ -53,6 +53,9 @@ func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 			"msg": err.Error(),
 		})).Status(req).Err()
 	}
+	if userBase != nil && userBase.ID > 0 {
+		return nil, ecode.ErrUserIsExist.Status(req).Err()
+	}
 	userBase, err = s.repo.GetUserByUsername(ctx, req.Username)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
@@ -132,7 +135,7 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		}
 	}
 	if user == nil || user.ID == 0 {
-		return nil, ecode.ErrUserNotFound.Status(req).Err()
+		return nil, ecode.ErrPasswordIncorrect.Status(req).Err()
 	}
 
 	if !auth.ComparePasswords(user.Password, req.Password) {

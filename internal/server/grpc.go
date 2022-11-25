@@ -21,6 +21,7 @@ func NewGRPCServer(cfg *app.ServerConfig, svc *service.UserServiceServer) *grpc.
 		grpc.Address(cfg.Addr),
 		grpc.Timeout(cfg.WriteTimeout),
 		grpc.EnableLog(),
+		grpc.EnableTracing(),
 	)
 
 	// register biz service
