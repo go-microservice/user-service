@@ -5,69 +5,146 @@ import (
 	"log"
 	"net"
 	"testing"
-	"time"
+
+	"github.com/go-microservice/user-service/internal/model"
+
+	"github.com/go-microservice/user-service/internal/mocks"
+
+	"github.com/golang/mock/gomock"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/test/bufconn"
 
 	pb "github.com/go-microservice/user-service/api/user/v1"
 )
 
 const (
-	addr    = "localhost:9090"
+	addr    = ""
 	bufSize = 1024 * 1024
 )
 
-var listener *bufconn.Listener
+var (
+	lis *bufconn.Listener
+)
 
-func initGRPCServerHTTP2() {
-	lis, err := net.Listen("tcp", addr)
-	if err != nil {
-		log.Fatalf("failed to listen, err: %v", err)
-	}
+// init create a gRPC server
+func initGRPCServer(t *testing.T) {
+	lis = bufconn.Listen(bufSize)
+	srv := grpc.NewServer()
 
-	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &UserServiceServer{})
-	reflection.Register(s)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUserRepo := mocks.NewMockUserRepo(ctrl)
+
+	pb.RegisterUserServiceServer(srv, &UserServiceServer{
+		repo: mockUserRepo,
+	})
 
 	go func() {
-		if err := s.Serve(lis); err != nil {
-			log.Fatalf("failed to server, err: %v", err)
+		if err := srv.Serve(lis); err != nil {
+			log.Fatalf("srv.Serve, err: %v", err)
 		}
 	}()
 }
 
-func initGRPCServerBuffConn() {
-	listener = bufconn.Listen(bufSize)
-	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &UserServiceServer{})
-	reflection.Register(s)
-
-	go func() {
-		if err := s.Serve(listener); err != nil {
-			log.Fatalf("failed to server, err: %v", err)
-		}
-	}()
+func dialer() func(context.Context, string) (net.Conn, error) {
+	return func(context.Context, string) (net.Conn, error) {
+		return lis.Dial()
+	}
 }
 
 func TestUserServiceServer_GetUser(t *testing.T) {
-	//initGRPCServerHTTP2()
-	initGRPCServerBuffConn()
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect, err: %v", err)
+	testCases := []struct {
+		name       string
+		id         int64
+		res        *pb.GetUserReply
+		buildStubs func(mock *mocks.MockUserRepo)
+		errCode    codes.Code
+		errMsg     string
+	}{
+		{
+			name: "OK",
+			id:   1,
+			res:  &pb.GetUserReply{User: &pb.User{Id: 1}},
+			buildStubs: func(mock *mocks.MockUserRepo) {
+				mock.EXPECT().GetUser(gomock.Any(), int64(1)).
+					Return(&model.UserModel{ID: 1}, nil).Times(1)
+			},
+			errCode: codes.OK,
+			errMsg:  "",
+		},
+		{
+			name: "NotFound",
+			id:   10,
+			res:  &pb.GetUserReply{User: &pb.User{Id: 0}},
+			buildStubs: func(mock *mocks.MockUserRepo) {
+				mock.EXPECT().GetUser(gomock.Any(), int64(10)).
+					Return(&model.UserModel{}, nil).Times(1)
+			},
+			errCode: codes.NotFound,
+			errMsg:  "",
+		},
+		//{
+		//	name:    "internalError",
+		//	id:      -1,
+		//	res:     &pb.GetUserReply{User: &pb.User{Id: 0}},
+		//	errCode: codes.Internal,
+		//	errMsg:  "",
+		//},
 	}
-	defer conn.Close()
 
-	c := pb.NewUserServiceClient(conn)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			lis := bufconn.Listen(bufSize)
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+			mockUserRepo := mocks.NewMockUserRepo(ctrl)
+			tc.buildStubs(mockUserRepo)
 
-	r, err := c.GetUser(ctx, &pb.GetUserRequest{Id: 1})
-	if err != nil {
-		log.Fatalf("Could not get user, err: %v", err)
+			srv := grpc.NewServer()
+			pb.RegisterUserServiceServer(srv, &UserServiceServer{
+				repo: mockUserRepo,
+			})
+
+			go func() {
+				if err := srv.Serve(lis); err != nil {
+					log.Fatalf("srv.Serve, err: %v", err)
+				}
+			}()
+
+			dialer := func(context.Context, string) (net.Conn, error) {
+				return lis.Dial()
+			}
+
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, addr, grpc.WithContextDialer(dialer), grpc.WithInsecure())
+			if err != nil {
+				log.Fatalf("grpc.DialContext, err: %v", err)
+			}
+			client := pb.NewUserServiceClient(conn)
+
+			req := &pb.GetUserRequest{Id: tc.id}
+			resp, err := client.GetUser(ctx, req)
+			if err != nil {
+				if er, ok := status.FromError(err); ok {
+					if er.Code() != tc.errCode {
+						t.Errorf("error code, expected: %d, received: %d", codes.InvalidArgument, er.Code())
+					}
+					if er.Message() != tc.errMsg {
+						t.Errorf("error message, expected: %s, received: %s", tc.errMsg, er.Message())
+					}
+				}
+			}
+			if resp != nil {
+				if resp.GetUser().Id != tc.res.GetUser().Id {
+					t.Errorf("response, expected: %v, received: %v", tc.res.GetUser().Id, resp.GetUser().Id)
+				}
+			}
+		})
 	}
-	log.Printf("resp %v", r.User)
 }
