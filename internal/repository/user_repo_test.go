@@ -4,47 +4,19 @@ import (
 	"context"
 	"testing"
 
-	"github.com/go-microservice/user-service/internal/mocks"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/go-microservice/user-service/internal/model"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-microservice/user-service/internal/mocks"
 	"github.com/golang/mock/gomock"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
-
-var (
-	mockDB *gorm.DB
-)
-
-func setup() {
-	// mocks db
-	sqlDB, _, err := sqlmock.New()
-	if err != nil {
-		panic(err)
-	}
-	mockDB, err := gorm.Open(mysql.New(mysql.Config{
-		Conn:                      sqlDB,
-		SkipInitializeWithVersion: true,
-	}), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	_ = mockDB
-}
-
-func teardown() {
-}
 
 func Test_userRepo_CreateUser(t *testing.T) {
 
 }
 
-// see: https://segmentfault.com/a/1190000017132133
 func Test_userRepo_GetUser(t *testing.T) {
-	setup()
-	defer teardown()
-
 	ctl := gomock.NewController(t)
 	defer ctl.Finish()
 
@@ -53,14 +25,33 @@ func Test_userRepo_GetUser(t *testing.T) {
 	id = 1
 
 	mockCache := mocks.NewMockUserCache(ctl)
-	gomock.InOrder(
-		mockCache.EXPECT().GetUserCache(ctx, id).Return(&model.UserModel{ID: 1}, nil).Times(1),
-	)
+	mockCache.EXPECT().GetUserCache(ctx, id).Return(&model.UserModel{ID: id}, nil).Times(1)
 
 	user := NewUser(mockDB, mockCache)
 	ret, err := user.GetUser(ctx, id)
-	if err != nil {
-		t.Errorf("repo.GetUser err: %v", err)
-	}
-	t.Log(ret)
+	assert.NoError(t, err)
+	assert.NotNil(t, ret)
+	assert.Equal(t, id, ret.ID)
+}
+
+func Test_userRepo_GetUserByUsername(t *testing.T) {
+	ctl := gomock.NewController(t)
+	defer ctl.Finish()
+
+	var (
+		id       int64
+		username string
+	)
+	ctx := context.Background()
+	id = 1
+	username = "test-username"
+
+	// todo: mock expectQuery
+
+	user := NewUser(mockDB, nil)
+	ret, err := user.GetUserByUsername(ctx, username)
+	assert.NoError(t, err)
+	assert.NotNil(t, ret)
+	assert.Equal(t, id, ret.ID)
+	assert.Equal(t, username, ret.Username)
 }
