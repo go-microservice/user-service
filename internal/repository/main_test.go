@@ -1,9 +1,13 @@
 package repository
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/go-microservice/user-service/internal/model"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/alicebob/miniredis/v2"
@@ -16,16 +20,22 @@ import (
 
 var (
 	mockDB    *gorm.DB
+	mock      sqlmock.Sqlmock
+	sqlDB     *sql.DB
 	testCache cache.UserCache
 	testRepo  UserRepo
+
+	data *model.UserModel
 )
 
 func TestMain(m *testing.M) {
+	var err error
 	// mocks db
-	sqlDB, _, err := sqlmock.New()
+	sqlDB, mock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		log.Fatalf("mock db, err: %v", err)
 	}
+	_ = mock
 
 	mockDB, err = gorm.Open(mysql.New(
 		mysql.Config{
@@ -43,6 +53,23 @@ func TestMain(m *testing.M) {
 	testCache = cache.NewUserCache(redisClient)
 
 	testRepo = NewUser(mockDB, nil)
+
+	data = &model.UserModel{
+		ID:        1,
+		Username:  "test-username",
+		Nickname:  "nickname",
+		Phone:     "12345678",
+		Email:     "test@test.com",
+		Password:  "123456",
+		Avatar:    "",
+		Gender:    "",
+		Birthday:  "2022-11-10",
+		Bio:       "ok",
+		LoginAt:   time.Now().Unix(),
+		Status:    0,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	}
 
 	os.Exit(m.Run())
 }
