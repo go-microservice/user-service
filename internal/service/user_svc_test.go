@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net"
 	"testing"
@@ -86,15 +88,19 @@ func TestUserServiceServer_GetUser(t *testing.T) {
 					Return(&model.UserModel{}, nil).Times(1)
 			},
 			errCode: codes.NotFound,
-			errMsg:  "",
+			errMsg:  "not found",
 		},
-		//{
-		//	name:    "internalError",
-		//	id:      -1,
-		//	res:     &pb.GetUserReply{User: &pb.User{Id: 0}},
-		//	errCode: codes.Internal,
-		//	errMsg:  "",
-		//},
+		{
+			name: "InternalError",
+			id:   2,
+			res:  &pb.GetUserReply{User: &pb.User{Id: 2}},
+			buildStubs: func(mock *mocks.MockUserRepo) {
+				mock.EXPECT().GetUser(gomock.Any(), int64(2)).
+					Return(&model.UserModel{}, errors.New("internal error")).Times(1)
+			},
+			errCode: codes.Code(10000),
+			errMsg:  "Internal error",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -131,9 +137,10 @@ func TestUserServiceServer_GetUser(t *testing.T) {
 			req := &pb.GetUserRequest{Id: tc.id}
 			resp, err := client.GetUser(ctx, req)
 			if err != nil {
+				fmt.Println("~~~~~~~~~~~~~~~~", err)
 				if er, ok := status.FromError(err); ok {
 					if er.Code() != tc.errCode {
-						t.Errorf("error code, expected: %d, received: %d", codes.InvalidArgument, er.Code())
+						t.Errorf("error code, expected: %d, received: %d", tc.errCode, er.Code())
 					}
 					if er.Message() != tc.errMsg {
 						t.Errorf("error message, expected: %s, received: %s", tc.errMsg, er.Message())
