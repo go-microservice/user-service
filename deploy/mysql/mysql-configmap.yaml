@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-db-config
+  namespace: default
+  labels:
+    app: mysql-db-config
+data:
+  my.cnf: |
+    [client]
+    default-character-set=utf8mb4
+    [mysql]
+    default-character-set=utf8mb4
+    [mysqld]
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_unicode_ci
+    init_connect='SET NAMES utf8mb4'
+    skip-character-set-client-handshake = true
+    max_connections=2000
+    secure_file_priv=/var/lib/mysql
+    datadir=/var/lib/mysql
+    bind-address=0.0.0.0
+    symbolic-links=0

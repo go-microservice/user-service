@@ -1,0 +1,23 @@
+etcd:
+  Endpoints:
+    - "127.0.0.1:2379"
+  ConnectTimeout: 5s
+  BasicAuth:
+  UserName:
+  Password:
+  Secure: false
+  AutoSyncInterval: 1s
+  TTL:
+consul:
+  Addr: "127.0.0.1:8500"
+  Scheme: http
+  Datacenter:
+  WaitTime: 5s
+nacos:
+  Addr: "127.0.0.1"
+  Port: 8848
+  NamespaceId: public
+  TimeoutMs: 5000
+  LogDir:
+  CacheDir:
+  LogLevel: warn  # debug,info,warn,error, default is info
