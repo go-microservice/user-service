@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hibiken/asynq"
+
+	"github.com/go-eagle/eagle/pkg/log"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -22,12 +24,20 @@ type EmailWelcomePayload struct {
 // A task consists of a type and a payload.
 //----------------------------------------------
 
-func NewEmailWelcomeTask(username string) (*asynq.Task, error) {
+func NewEmailWelcomeTask(username string) error {
 	payload, err := json.Marshal(EmailWelcomePayload{Username: username})
 	if err != nil {
-		return nil, err
+		return errors.Wrapf(err, "[tasks] json marshal error, name: %s", TypeEmailWelcome)
 	}
-	return asynq.NewTask(TypeEmailWelcome, payload), nil
+	task := asynq.NewTask(TypeEmailWelcome, payload)
+	info, err := GetClient().Enqueue(task)
+	if err != nil {
+		return errors.Wrapf(err, "[tasks] Enqueue task error, name: %s", TypeEmailWelcome)
+	}
+
+	log.Infof("[tasks] welcome task", "info", info)
+
+	return nil
 }
 
 //---------------------------------------------------------------
@@ -43,7 +53,7 @@ func HandleEmailWelcomeTask(ctx context.Context, t *asynq.Task) error {
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
 		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
-	log.Printf("Sending Email to User: username=%s", p.Username)
+	log.Infof("Sending Email to User: username=%s", p.Username)
 	// Email delivery code ...
 	return nil
 }
