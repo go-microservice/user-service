@@ -51,7 +51,10 @@
 
 在根目录下执行以下命令
 
-`go run main.go`
+```go 
+go build
+APP_ENV=dev ./user-service -c=config
+`
 
 grpc即可正常启动
 
@@ -83,4 +86,19 @@ go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
    Message: The user already exists.
    Details:
    1)	{"@type":"type.googleapis.com/micro.user.v1.RegisterRequest","email":"1234567@cc.com","password":"123456","username":"admin7"}
+```
+
+## 启动异步任务
+
+```bash
+# 直接运行 
+go run cmd/cron/main.go -c=config -e=dev
+
+# 编译
+go build -o cron cmd/cron/main.go
+
+# 运行
+./cron -c=config -e=env
+或者
+APP_ENV ./cron -c=config
 ```

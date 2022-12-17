@@ -35,7 +35,7 @@ func NewEmailWelcomeTask(username string) error {
 		return errors.Wrapf(err, "[tasks] Enqueue task error, name: %s", TypeEmailWelcome)
 	}
 
-	log.Infof("[tasks] welcome task", "info", info)
+	log.Infof("[tasks] welcome task, id: %s, queue_name: %s, type: %s", info.ID, info.Queue, info.Type)
 
 	return nil
 }
