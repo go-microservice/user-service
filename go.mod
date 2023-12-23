@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis/v2 v2.15.1
+	github.com/envoyproxy/protoc-gen-validate v0.6.2
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-eagle/eagle v1.6.1-0.20220924075928-804b1b36d90d
 	github.com/go-redis/redis/v8 v8.11.4

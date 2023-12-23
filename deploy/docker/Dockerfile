@@ -34,7 +34,7 @@ COPY config ./config
 
 # Build the Go app
 #RUN make build
-RUN go build -o /go/bin/user-service
+RUN make build
 
 # Runtime stage
 FROM alpine:3.15

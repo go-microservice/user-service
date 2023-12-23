@@ -5,24 +5,21 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-microservice/user-service/internal/tasks"
-
-	"github.com/spf13/cast"
-
-	"github.com/go-microservice/user-service/internal/cache"
-
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
 	"github.com/go-eagle/eagle/pkg/errcode"
+	"github.com/google/wire"
+	"github.com/jinzhu/copier"
+	"github.com/spf13/cast"
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	pb "github.com/go-microservice/user-service/api/user/v1"
+	"github.com/go-microservice/user-service/internal/cache"
 	"github.com/go-microservice/user-service/internal/ecode"
 	"github.com/go-microservice/user-service/internal/model"
 	"github.com/go-microservice/user-service/internal/repository"
+	"github.com/go-microservice/user-service/internal/tasks"
 	"github.com/go-microservice/user-service/internal/types"
-	"github.com/google/wire"
-	"github.com/jinzhu/copier"
 )
 
 var (
@@ -45,9 +42,16 @@ func NewUserServiceServer(repo repository.UserRepo) *UserServiceServer {
 }
 
 func (s *UserServiceServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterReply, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, ecode.ErrInvalidArgument.WithDetails(errcode.NewDetails(map[string]interface{}{
+			"msg": err.Error(),
+		})).Status(req).Err()
+	}
+
 	var userBase *model.UserModel
-	// check user is exist
-	userBase, err := s.repo.GetUserByEmail(ctx, req.Email)
+	// check user is existed
+	userBase, err = s.repo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, ecode.ErrInternalError.WithDetails(errcode.NewDetails(map[string]interface{}{
 			"msg": err.Error(),

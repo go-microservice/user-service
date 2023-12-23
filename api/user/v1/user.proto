@@ -3,6 +3,7 @@ syntax = "proto3";
 package user.v1;
 
 import "google/protobuf/empty.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/go-microservice/user-service/api/user/v1;v1";
 
@@ -50,9 +51,9 @@ message User {
 }
 
 message RegisterRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
+  string username = 1 [(validate.rules).string.min_len = 6];
+  string email = 2 [(validate.rules).string.email = true];
+  string password = 3 [(validate.rules).string.min_len = 6];
 }
 
 message RegisterReply {
@@ -61,9 +62,9 @@ message RegisterReply {
 }
 
 message LoginRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
+  string username = 1 [(validate.rules).string.min_len = 6];
+  string email = 2 [(validate.rules).string.email = true];
+  string password = 3 [(validate.rules).string.min_len = 6];
 }
 
 message LoginReply {
@@ -72,8 +73,8 @@ message LoginReply {
 }
 
 message LogoutRequest {
-  int64 id = 1;
-  string token = 2;
+  int64 id = 1 [(validate.rules).int64.gte  = 1];
+  string token = 2 [(validate.rules).string.min_len  = 20];
 }
 
 message CreateUserRequest {
