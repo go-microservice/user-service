@@ -31,7 +31,7 @@ all: lint test build
 .PHONY: build
 # make build, Build the binary file
 build: dep
-	@go build -v -ldflags ${ldflags} .
+	@go build -v -ldflags ${ldflags} -o /go/bin/user-service
 
 .PHONY: dep
 # make dep Get the dependencies
@@ -121,9 +121,12 @@ graph:
 .PHONY: mockgen
 # make mockgen gen mock file
 mockgen:
+	# mocken grpc client
+	mockgen -destination="./internal/mocks/mock_user_grpc_client" -package=mocks -source="api/user/v1/user_grpc.pb.go UserServiceClient"
+	# other
 	cd ./internal &&  for file in `egrep -rnl "type.*?interface" ./repository | grep -v "_test" `; do \
 		echo $$file ; \
-		cd .. && mockgen -destination="./internal/mock/$$file" -source="./internal/$$file" && cd ./internal ; \
+		cd .. && mockgen -destination="./internal/mocks/$$file" -source="./internal/$$file" && cd ./internal ; \
 	done
 
 .PHONY: init
@@ -134,7 +137,9 @@ init:
 	go get -v github.com/google/gnostic
 	go get -v github.com/google/gnostic/cmd/protoc-gen-openapi
 	go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+	go get github.com/golang/mock/gomock
 	go get github.com/golang/mock/mockgen
+	go get github.com/envoyproxy/protoc-gen-validate
 
 .PHONY: proto
 # generate proto struct only
@@ -142,6 +147,7 @@ proto:
 	protoc --proto_path=. \
            --proto_path=./third_party \
            --go_out=. --go_opt=paths=source_relative \
+           --validate_out=lang=go,paths=source_relative:. \
            $(API_PROTO_FILES)
 
 .PHONY: grpc
