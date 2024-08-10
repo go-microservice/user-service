@@ -64,7 +64,7 @@ func (m *User) validate(all bool) error {
 
 	// no validation rules for Phone
 
-	// no validation rules for LoginAt
+	// no validation rules for LastLoginAt
 
 	// no validation rules for Status
 
@@ -654,7 +654,9 @@ func (m *LoginReply) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Token
+	// no validation rules for AccessToken
+
+	// no validation rules for RefreshToken
 
 	if len(errors) > 0 {
 		return LoginReplyMultiError(errors)
@@ -766,9 +768,9 @@ func (m *LogoutRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetToken()) < 20 {
+	if utf8.RuneCountInString(m.GetAccessToken()) < 20 {
 		err := LogoutRequestValidationError{
-			field:  "Token",
+			field:  "AccessToken",
 			reason: "value length must be at least 20 runes",
 		}
 		if !all {
@@ -1343,7 +1345,7 @@ func (m *UpdatePasswordRequest) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for OldPassword
+	// no validation rules for Password
 
 	// no validation rules for NewPassword
 

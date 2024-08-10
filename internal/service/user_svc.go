@@ -162,8 +162,8 @@ func (s *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 	}
 
 	return &pb.LoginReply{
-		Id:    user.ID,
-		Token: token,
+		Id:          user.ID,
+		AccessToken: token,
 	}, nil
 }
 
@@ -174,7 +174,7 @@ func (s *UserServiceServer) Logout(ctx context.Context, req *pb.LogoutRequest) (
 	if err != nil {
 		return nil, ecode.ErrToken.Status(req).Err()
 	}
-	if token != req.Token {
+	if token != req.AccessToken {
 		return nil, ecode.ErrAccessDenied.Status(req).Err()
 	}
 
@@ -258,7 +258,7 @@ func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePa
 	if len(req.Id) == 0 {
 		return nil, ecode.ErrInvalidArgument.Status(req).Err()
 	}
-	if len(req.OldPassword) == 0 || len(req.NewPassword) == 0 || len(req.ConfirmPassword) == 0 {
+	if len(req.Password) == 0 || len(req.NewPassword) == 0 || len(req.ConfirmPassword) == 0 {
 		return nil, ecode.ErrInvalidArgument.Status(req).Err()
 	}
 	if req.NewPassword != req.ConfirmPassword {
@@ -280,7 +280,7 @@ func (s *UserServiceServer) UpdatePassword(ctx context.Context, req *pb.UpdatePa
 		return nil, ecode.ErrUserNotFound.Status(req).Err()
 	}
 
-	if !auth.ComparePasswords(user.Password, req.OldPassword) {
+	if !auth.ComparePasswords(user.Password, req.Password) {
 		return nil, ecode.ErrPasswordIncorrect.Status(req).Err()
 	}
 

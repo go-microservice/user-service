@@ -7,10 +7,14 @@ import "validate/validate.proto";
 
 option go_package = "github.com/go-microservice/user-service/api/user/v1;v1";
 
+// 用户服务
 service UserService {
   // auth
+  // sign up
   rpc Register(RegisterRequest) returns (RegisterReply) {}
+  // sign in
   rpc Login(LoginRequest) returns (LoginReply) {}
+  // logout 
   rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {}
 
   // user
@@ -21,12 +25,14 @@ service UserService {
   rpc UpdatePassword(UpdatePasswordRequest) returns (UpdatePasswordReply) {}
 }
 
+// 用户状态
 enum StatusType {
   NORMAL = 0;
   DELETE = 1;
   Ban = 2;
 }
 
+// 性别
 enum GenderType {
   UNKNOWN = 0;
   MALE = 1;
@@ -37,9 +43,9 @@ enum GenderType {
 message User {
   int64 id = 1;
   string username = 2;
-  string email =3;
+  string email = 3;
   string phone = 4;
-  int64  login_at = 5;
+  int64  last_login_at = 5;
   StatusType status = 6;
   string nickname = 7;
   string avatar = 8;
@@ -69,12 +75,14 @@ message LoginRequest {
 
 message LoginReply {
   int64 id = 1;
-  string token = 2;
+  string access_token = 2;
+  string refresh_token = 3;
 }
 
 message LogoutRequest {
   int64 id = 1 [(validate.rules).int64.gte  = 1];
-  string token = 2 [(validate.rules).string.min_len  = 20];
+  string access_token = 2 [(validate.rules).string.min_len  = 20];
+
 }
 
 message CreateUserRequest {
@@ -121,7 +129,7 @@ message UpdateUserReply {
 
 message UpdatePasswordRequest {
   string id = 1;
-  string old_password = 2;
+  string password = 2;
   string new_password = 3;
   string confirm_password = 4;
 }
