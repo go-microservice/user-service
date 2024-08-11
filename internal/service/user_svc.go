@@ -8,7 +8,6 @@ import (
 	"github.com/go-eagle/eagle/pkg/app"
 	"github.com/go-eagle/eagle/pkg/auth"
 	"github.com/go-eagle/eagle/pkg/errcode"
-	"github.com/google/wire"
 	"github.com/jinzhu/copier"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -25,9 +24,6 @@ import (
 var (
 	_ pb.UserServiceServer = (*UserServiceServer)(nil)
 )
-
-// ProviderSet is service providers.
-var ProviderSet = wire.NewSet(NewUserServiceServer)
 
 type UserServiceServer struct {
 	pb.UnimplementedUserServiceServer

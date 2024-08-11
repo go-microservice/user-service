@@ -2,10 +2,8 @@
 
 tag=$1
 IMAGE_NAME="user-service"
-NAMESPACE="qloog"
+NAMESPACE="go-microservices"
 REGISTRY="registry.cn-shanghai.aliyuncs.com"
-
-# 指定docker hub
 
 if [[ -z "$tag" ]]; then
   echo "tag is empty"
@@ -25,12 +23,4 @@ docker tag ${IMAGE_NAME}:${tag} ${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${tag}
 echo "3. push docker image to hub"
 docker push ${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${tag}
 
-# deploy k8s deployment
-echo "4. deploy k8s deployment"
-kubectl apply -f k8s/go-deployment.yaml
-
-# deploy k8s service
-echo "5. deploy k8s service"
-kubectl apply -f k8s/go-service.yaml
-
-echo "Done. deploy success."
+echo "Done. push docker image success."
