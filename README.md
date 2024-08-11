@@ -51,9 +51,12 @@
 
 在根目录下执行以下命令
 
-```go 
-go build
-APP_ENV=dev ./user-service -c=config
+```bash
+# 运行
+make run
+
+# 生成 docker 竞相，v1.0.0 对应仓库打的上线tag
+make GIT_TAG=v1.0.0 docker
 `
 
 grpc即可正常启动
