@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.16-alpine3.15 AS builder
+FROM golang:1.22-alpine3.20 AS builder
 
 # The latest alpine images don't have some tools like (`git` and `bash`).
 # Adding git, bash and openssh to the image
@@ -37,7 +37,7 @@ COPY config ./config
 RUN make build
 
 # Runtime stage
-FROM alpine:3.15
+FROM alpine:3.20
 
 WORKDIR /bin
 

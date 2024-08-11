@@ -11,7 +11,7 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
