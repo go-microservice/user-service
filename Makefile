@@ -1,6 +1,9 @@
 SHELL := /bin/bash
 BASEDIR = $(shell pwd)
 
+# make GIT_TAG=v1.0.0 build
+SERVICE_NAME?=user-service
+
 # build with version infos
 versionDir = "github.com/go-eagle/eagle/pkg/version"
 gitTag = $(shell if [ "`git describe --tags --abbrev=0 2>/dev/null`" != "" ];then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
