@@ -34,7 +34,7 @@ all: lint test build
 .PHONY: build
 # make build, Build the binary file
 build: 
-	GOOS=linux GOARCH=amd64 go build -v -ldflags ${ldflags} -o build/$(SERVICE_NAME) cmd/server/main.go cmd/server/wire_gen.go
+	GOOS=linux GOARCH=amd64 go build -v -ldflags ${ldflags} -o bin/$(SERVICE_NAME) cmd/server/main.go cmd/server/wire_gen.go
 
 .PHONY: run
 # make run, run current project
@@ -95,7 +95,7 @@ view-cover:
 	go tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: docker
-# make docker  生成docker镜像, eg: make GIT-TAG=v1.0.0 docker
+# make docker  生成docker镜像, eg: make GIT_TAG=v1.0.0 docker
 docker:
 	sh deploy/docker_image.sh $(GIT_TAG)
 
