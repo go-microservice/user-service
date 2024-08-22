@@ -1,7 +1,7 @@
 Name: user-svc
 Version: 1.0.0
 PprofPort: :5555
-Mode: debug                 # debug, release, test
+Mode: debug # debug, release, test
 JwtSecret: JWT_SECRET
 JwtTimeout: 86400
 CookieName: jwt-token
@@ -13,11 +13,11 @@ EnableTrace: false
 EnablePprof: true
 
 HTTP:
-  Addr: :8080
+  Addr: :8081
   ReadTimeout: 3s
   WriteTimeout: 3s
 GRPC:
-  Addr: :9090
+  Addr: :9091
   Timeout: 3s
   ReadTimeout: 5s
   WriteTimeout: 5s

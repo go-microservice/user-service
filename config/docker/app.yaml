@@ -13,10 +13,10 @@ EnableTrace: false
 EnablePprof: true
 
 HTTP:
-  Addr: :8080
+  Addr: :8081
   ReadTimeout: 3s
   WriteTimeout: 3s
 GRPC:
-  Addr: :9090
+  Addr: :9091
   ReadTimeout: 5s
   WriteTimeout: 5s
