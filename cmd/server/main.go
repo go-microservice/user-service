@@ -30,7 +30,7 @@ import (
 
 var (
 	cfgDir  = pflag.StringP("config dir", "c", "config", "config path.")
-	env     = pflag.StringP("env name", "e", "dev", "env var name.")
+	env     = pflag.StringP("env name", "e", "", "env var name.")
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
 
@@ -70,7 +70,8 @@ func main() {
 
 	if cfg.EnableTrace {
 		var traceCfg trace.Config
-		err := config.Load("trace", &traceCfg)
+		var err error
+		err = config.Load("trace", &traceCfg)
 		_, err = trace.InitTracerProvider(traceCfg.ServiceName, traceCfg.CollectorEndpoint)
 		if err != nil {
 			panic(err)

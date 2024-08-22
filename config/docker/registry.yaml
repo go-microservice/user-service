@@ -1,6 +1,6 @@
 etcd:
   Endpoints:
-    - "127.0.0.1:2379"
+    - "etcd:2379"
   ConnectTimeout: 5s
   BasicAuth:
   UserName:
@@ -14,7 +14,7 @@ consul:
   Datacenter:
   WaitTime: 5s
 nacos:
-  Addr: "127.0.0.1"
+  Addr: "nacos"
   Port: 8848
   NamespaceId: public
   TimeoutMs: 5000

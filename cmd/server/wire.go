@@ -39,7 +39,7 @@ func newApp(cfg *eagle.Config, gs *grpc.Server) *eagle.App {
 			// init gRPC server
 			gs,
 		),
-		// eagle.WithRegistry(getConsulRegistry()),
+		eagle.WithRegistry(getConsulRegistry()),
 	)
 }
 

@@ -56,7 +56,7 @@ func InitApp(cfg *app.Config, config *app.ServerConfig) (*app.App, func(), error
 // wire.go:
 
 func newApp(cfg *app.Config, gs *grpc.Server) *app.App {
-	return app.New(app.WithName(cfg.Name), app.WithVersion(cfg.Version), app.WithLogger(log.GetLogger()), app.WithServer(server.NewHTTPServer(&cfg.HTTP), gs),
+	return app.New(app.WithName(cfg.Name), app.WithVersion(cfg.Version), app.WithLogger(log.GetLogger()), app.WithServer(server.NewHTTPServer(&cfg.HTTP), gs), app.WithRegistry(getConsulRegistry()),
 	)
 }
 
